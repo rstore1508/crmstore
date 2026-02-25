@@ -224,7 +224,7 @@
             
             <div class="p-8 overflow-y-auto bg-white flex-1">
                 
-                <!-- NOVO MÉTODO: IMPORTAR ARQUIVO COM PAPAPARSE -->
+                <!-- IMPORTAR ARQUIVO COM PAPAPARSE -->
                 <div class="bg-apple-bg/30 border border-apple-border/50 rounded-2xl p-6">
                     <h4 class="font-bold text-apple-text text-lg flex items-center gap-2 mb-2"><i class="ph ph-file-csv text-brand-500"></i> Importar Arquivo (Excel/CSV)</h4>
                     <p class="text-sm text-apple-textMut mb-6 font-medium">Selecione o formato dos dados e adicione o seu arquivo. O sistema ignora duplicados automaticamente.</p>
@@ -247,12 +247,15 @@
                         </div>
                     </div>
                     
-                    <!-- AQUI ESTÁ A MÁGICA: Drag and Drop com prevenção de defaults rigosos -->
+                    <!-- INPUT ESCONDIDO FORA DA ZONA DE CLIQUE (Fim do Bug do Loop) -->
+                    <input type="file" id="csv-file-input" class="hidden" accept=".csv, .txt" onchange="window.handleFileSelect(this.files[0])">
+                    
+                    <!-- Drag and Drop BLINDADO com Eventos Inline -->
                     <div id="drop-zone" 
                          onclick="document.getElementById('csv-file-input').click()" 
-                         ondragover="event.preventDefault(); event.stopPropagation(); this.classList.add('border-brand-500', 'bg-brand-50');" 
-                         ondragleave="event.preventDefault(); event.stopPropagation(); this.classList.remove('border-brand-500', 'bg-brand-50');" 
-                         ondrop="event.preventDefault(); event.stopPropagation(); this.classList.remove('border-brand-500', 'bg-brand-50'); if(event.dataTransfer.files[0]) window.handleFileSelect(event.dataTransfer.files[0]);"
+                         ondragover="event.preventDefault(); this.classList.add('border-brand-500', 'bg-brand-50');" 
+                         ondragleave="event.preventDefault(); this.classList.remove('border-brand-500', 'bg-brand-50');" 
+                         ondrop="event.preventDefault(); this.classList.remove('border-brand-500', 'bg-brand-50'); if(event.dataTransfer.files[0]) window.handleFileSelect(event.dataTransfer.files[0]);"
                          class="border-2 border-dashed border-apple-border hover:border-brand-500 hover:bg-brand-50 rounded-[1.5rem] p-10 text-center cursor-pointer transition-all duration-300 bg-white group relative">
                         
                         <div class="w-16 h-16 bg-apple-bg group-hover:bg-white rounded-full flex items-center justify-center mx-auto mb-4 transition-colors pointer-events-none">
@@ -260,14 +263,12 @@
                         </div>
                         <p class="text-sm font-bold text-apple-text pointer-events-none">Clique para selecionar ou arraste o arquivo</p>
                         <p class="text-xs text-apple-textMut mt-1 font-medium pointer-events-none">Apenas arquivos .csv ou .txt</p>
-                        
-                        <!-- Input tem onclick de parar propagação para evitar o Loop de Clicks Infinito! -->
-                        <input type="file" id="csv-file-input" class="hidden" accept=".csv, .txt" onclick="event.stopPropagation()" onchange="window.handleFileSelect(this.files[0])">
-                        
-                        <div id="file-name-container" class="mt-4 hidden p-3 bg-brand-50 rounded-xl border border-brand-100 items-center justify-center gap-2" onclick="event.stopPropagation()">
-                            <i class="ph-fill ph-file-csv text-brand-500 text-lg"></i>
-                            <p id="file-name" class="text-xs text-brand-700 font-bold truncate max-w-[200px]"></p>
-                        </div>
+                    </div>
+
+                    <div id="file-name-container" class="mt-4 hidden p-3 bg-brand-50 rounded-xl border border-brand-100 items-center justify-center gap-2">
+                        <i class="ph-fill ph-file-csv text-brand-500 text-lg"></i>
+                        <p id="file-name" class="text-xs text-brand-700 font-bold truncate max-w-[200px]"></p>
+                        <button onclick="window.limparArquivo()" class="ml-auto text-brand-500 hover:text-brand-700 p-1 bg-white rounded-full shadow-sm"><i class="ph ph-x text-sm font-bold"></i></button>
                     </div>
                     
                     <button onclick="processarArquivoCSV()" id="btn-processar-csv" class="w-full mt-6 bg-brand-600 hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-600" disabled>
@@ -1131,12 +1132,12 @@
         };
 
         // =========================================================================
-        // NOVO MOTOR DE PROCESSAMENTO DE CSV / TEXTO (TOTALMENTE REESTRUTURADO)
+        // NOVO MOTOR DE PROCESSAMENTO DE CSV / TEXTO (LÓGICA BLINDADA DE DRAG E DROP)
         // =========================================================================
 
         window.arquivoCSVSelecionado = null;
 
-        // Função tornada global para ser acedida pelo onchange e ondrop
+        // Função global de seleção
         window.handleFileSelect = (file) => {
             if (!file) return;
             window.arquivoCSVSelecionado = file;
@@ -1144,6 +1145,15 @@
             document.getElementById('file-name-container').classList.remove('hidden');
             document.getElementById('file-name-container').classList.add('flex');
             document.getElementById('btn-processar-csv').disabled = false;
+        };
+
+        // Função global para limpar seleção
+        window.limparArquivo = () => {
+            window.arquivoCSVSelecionado = null;
+            document.getElementById('csv-file-input').value = '';
+            document.getElementById('file-name-container').classList.add('hidden');
+            document.getElementById('file-name-container').classList.remove('flex');
+            document.getElementById('btn-processar-csv').disabled = true;
         };
 
         window.processarArquivoCSV = () => {
@@ -1187,7 +1197,7 @@
                     }
                 });
             };
-            reader.readAsText(window.arquivoCSVSelecionado, 'windows-1252');
+            reader.readAsText(window.arquivoCSVSelecionado, 'windows-1252'); // Codificação para suportar acentos do Excel
         };
 
         async function processarArrayPapaParse(linhas, layout, tipoBase) {
@@ -1296,11 +1306,7 @@
                 closeModal('modal-import');
                 
                 // Limpa o estado
-                window.arquivoCSVSelecionado = null;
-                document.getElementById('csv-file-input').value = '';
-                document.getElementById('file-name-container').classList.add('hidden');
-                document.getElementById('file-name-container').classList.remove('flex');
-                document.getElementById('btn-processar-csv').disabled = true;
+                window.limparArquivo();
                 
                 if (currentView === 'base' || currentView === 'comprados') renderCurrentView();
                 
