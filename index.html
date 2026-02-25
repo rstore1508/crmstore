@@ -256,20 +256,28 @@
                          ondragover="event.preventDefault(); this.classList.add('border-brand-500', 'bg-brand-50');" 
                          ondragleave="event.preventDefault(); this.classList.remove('border-brand-500', 'bg-brand-50');" 
                          ondrop="event.preventDefault(); this.classList.remove('border-brand-500', 'bg-brand-50'); if(event.dataTransfer.files[0]) window.handleFileSelect(event.dataTransfer.files[0]);"
-                         class="border-2 border-dashed border-apple-border hover:border-brand-500 hover:bg-brand-50 rounded-[1.5rem] p-10 text-center cursor-pointer transition-all duration-300 bg-white group relative">
+                         class="border-2 border-dashed border-apple-border hover:border-brand-500 hover:bg-brand-50 rounded-[1.5rem] p-6 text-center cursor-pointer transition-all duration-300 bg-white group relative mb-4">
                         
-                        <div class="w-16 h-16 bg-apple-bg group-hover:bg-white rounded-full flex items-center justify-center mx-auto mb-4 transition-colors pointer-events-none">
-                            <i class="ph ph-upload-simple text-2xl text-apple-textMut group-hover:text-brand-500 transition-colors"></i>
+                        <div class="w-12 h-12 bg-apple-bg group-hover:bg-white rounded-full flex items-center justify-center mx-auto mb-2 transition-colors pointer-events-none">
+                            <i class="ph ph-upload-simple text-xl text-apple-textMut group-hover:text-brand-500 transition-colors"></i>
                         </div>
-                        <p class="text-sm font-bold text-apple-text pointer-events-none">Clique para selecionar ou arraste o arquivo</p>
-                        <p class="text-xs text-apple-textMut mt-1 font-medium pointer-events-none">Apenas arquivos .csv ou .txt</p>
+                        <p class="text-sm font-bold text-apple-text pointer-events-none">Clique ou arraste o arquivo .csv aqui</p>
+                        <p class="text-[10px] text-brand-500 mt-1 font-bold pointer-events-none bg-brand-50 inline-block px-2 py-1 rounded-full">(Fora daqui funciona perfeitamente)</p>
                     </div>
 
-                    <div id="file-name-container" class="mt-4 hidden p-3 bg-brand-50 rounded-xl border border-brand-100 items-center justify-center gap-2">
+                    <div id="file-name-container" class="mt-2 mb-4 hidden p-3 bg-brand-50 rounded-xl border border-brand-100 items-center justify-center gap-2">
                         <i class="ph-fill ph-file-csv text-brand-500 text-lg"></i>
                         <p id="file-name" class="text-xs text-brand-700 font-bold truncate max-w-[200px]"></p>
                         <button onclick="window.limparArquivo()" class="ml-auto text-brand-500 hover:text-brand-700 p-1 bg-white rounded-full shadow-sm"><i class="ph ph-x text-sm font-bold"></i></button>
                     </div>
+
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="h-px bg-apple-border flex-1"></div>
+                        <span class="text-[10px] font-bold text-apple-textMut uppercase tracking-widest">OU COLE OS DADOS (TESTE AQUI)</span>
+                        <div class="h-px bg-apple-border flex-1"></div>
+                    </div>
+
+                    <textarea id="texto-csv" oninput="document.getElementById('btn-processar-csv').disabled = this.value.trim().length === 0" placeholder="Copie do Excel e cole todo o texto aqui..." class="w-full h-32 bg-apple-bg/50 border border-apple-border/50 rounded-xl p-4 text-sm font-mono outline-none focus:ring-2 focus:ring-brand-400 transition-all resize-none shadow-inner"></textarea>
                     
                     <button onclick="processarArquivoCSV()" id="btn-processar-csv" class="w-full mt-6 bg-brand-600 hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-600" disabled>
                         <i class="ph ph-check-circle text-lg"></i> Iniciar Importação
@@ -1153,12 +1161,15 @@
             document.getElementById('csv-file-input').value = '';
             document.getElementById('file-name-container').classList.add('hidden');
             document.getElementById('file-name-container').classList.remove('flex');
+            document.getElementById('texto-csv').value = '';
             document.getElementById('btn-processar-csv').disabled = true;
         };
 
         window.processarArquivoCSV = () => {
-            if (!window.arquivoCSVSelecionado) {
-                showToast("Por favor, selecione um arquivo primeiro.", "warning");
+            const textoColado = document.getElementById('texto-csv').value;
+
+            if (!window.arquivoCSVSelecionado && !textoColado.trim()) {
+                showToast("Por favor, selecione um arquivo ou cole os dados.", "warning");
                 return;
             }
 
@@ -1173,31 +1184,36 @@
             const loaderText = document.getElementById('global-loading-text');
 
             loader.classList.remove('hidden');
-            loaderText.innerText = "A ler arquivo e preparar dados...";
+            loaderText.innerText = "A processar dados...";
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                let text = e.target.result;
-                if (text.startsWith('\uFEFF')) {
-                    text = text.substring(1);
+            // Função de configuração do PapaParse comum para ambos os métodos
+            const papaConfig = {
+                header: false,
+                skipEmptyLines: true,
+                transform: (value) => value.trim().replace(/^['"]|['"]$/g, ''),
+                complete: async (results) => {
+                    if (results.errors.length > 0) console.warn("Erros PapaParse:", results.errors);
+                    await processarArrayPapaParse(results.data, layout, tipo);
+                },
+                error: (err) => { 
+                    console.error("Erro PapaParse:", err); 
+                    showToast("Falha ao ler a estrutura dos dados.", "error"); 
+                    loader.classList.add('hidden');
                 }
-                
-                Papa.parse(text, {
-                    header: false, // Lê como array para lidar com os ficheiros sem cabeçalho e por index exato
-                    skipEmptyLines: true,
-                    transform: (value) => value.trim().replace(/^['"]|['"]$/g, ''),
-                    complete: async (results) => {
-                        if (results.errors.length > 0) console.warn("Erros PapaParse:", results.errors);
-                        await processarArrayPapaParse(results.data, layout, tipo);
-                    },
-                    error: (err) => { 
-                        console.error("Erro PapaParse:", err); 
-                        showToast("Falha ao ler a estrutura do CSV.", "error"); 
-                        loader.classList.add('hidden');
-                    }
-                });
             };
-            reader.readAsText(window.arquivoCSVSelecionado, 'windows-1252'); // Codificação para suportar acentos do Excel
+
+            if (window.arquivoCSVSelecionado) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    let text = e.target.result;
+                    if (text.startsWith('\uFEFF')) text = text.substring(1);
+                    Papa.parse(text, papaConfig);
+                };
+                reader.readAsText(window.arquivoCSVSelecionado, 'windows-1252');
+            } else {
+                // Processa o texto colado diretamente (ideal para o Canvas / iFrame)
+                Papa.parse(textoColado, papaConfig);
+            }
         };
 
         async function processarArrayPapaParse(linhas, layout, tipoBase) {
