@@ -223,11 +223,11 @@
             <div class="p-8 overflow-y-auto space-y-8 bg-white flex-1">
                 
                 <!-- MÉTODO 1: LER DA PASTA -->
-                <div class="bg-blue-50/50 border border-blue-200 rounded-2xl p-6 relative overflow-hidden">
+                <div class="bg-blue-50/50 border border-blue-200 rounded-2xl p-6 relative overflow-hidden hidden"> <!-- Ocultado temporariamente para focar no copiar e colar que é garantido -->
                     <div class="absolute -right-4 -top-4 text-blue-100"><i class="ph-fill ph-folder text-9xl"></i></div>
                     <div class="relative z-10">
                         <h4 class="font-bold text-blue-900 text-lg flex items-center gap-2 mb-2"><i class="ph ph-folder-open"></i> Puxar da Pasta</h4>
-                        <p class="text-sm text-blue-700 mb-5 font-medium">Deixe os ficheiros na mesma pasta deste sistema web e clique para puxar. <br><span class="text-xs text-blue-600 opacity-80">(Pode falhar consoante a segurança do seu navegador. Se falhar, use o método abaixo).</span></p>
+                        <p class="text-sm text-blue-700 mb-5 font-medium">Deixe os ficheiros na mesma pasta deste sistema web e clique para puxar.</p>
                         
                         <div class="flex flex-col sm:flex-row gap-4">
                             <button onclick="puxarDaPasta('clientes.csv', 'clientes', 'Normal')" class="flex-1 bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 py-3 px-4 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 group">
@@ -240,36 +240,30 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-4">
-                    <div class="h-px bg-apple-border flex-1"></div>
-                    <span class="text-xs font-bold text-apple-textMut uppercase tracking-widest">OU</span>
-                    <div class="h-px bg-apple-border flex-1"></div>
-                </div>
-
                 <!-- MÉTODO 2: COLAR DADOS -->
                 <div class="bg-apple-bg/30 border border-apple-border/50 rounded-2xl p-6">
-                    <h4 class="font-bold text-apple-text text-lg flex items-center gap-2 mb-2"><i class="ph ph-clipboard-text"></i> Copiar e Colar (Garantido)</h4>
-                    <p class="text-sm text-apple-textMut mb-5 font-medium">Abra o seu Excel ou CSV, copie tudo (Ctrl+C) e cole na caixa abaixo (Ctrl+V).</p>
+                    <h4 class="font-bold text-apple-text text-lg flex items-center gap-2 mb-2"><i class="ph ph-clipboard-text"></i> Copiar e Colar (Método Recomendado)</h4>
+                    <p class="text-sm text-apple-textMut mb-5 font-medium">Abra o seu Excel ou CSV, selecione todos os dados (Ctrl+C) e cole na caixa abaixo (Ctrl+V).</p>
                     
                     <div class="grid grid-cols-2 gap-4 mb-4">
                         <div class="col-span-2 md:col-span-1">
                             <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Layout dos Dados</label>
-                            <select id="colar-layout" class="w-full bg-white border border-apple-border rounded-xl px-4 py-2.5 mt-1.5 text-sm outline-none transition-all cursor-pointer">
-                                <option value="clientes">Base de Clientes (Antiga)</option>
-                                <option value="leads">Leads Comprados (Frio)</option>
+                            <select id="colar-layout" class="w-full bg-white border border-apple-border rounded-xl px-4 py-2.5 mt-1.5 text-sm outline-none transition-all cursor-pointer font-medium text-apple-text">
+                                <option value="clientes">Base de Clientes (Código, Nome, Telefone...)</option>
+                                <option value="leads">Leads Atacado (CNPJ, Razão Social, Bairro...)</option>
                                 <option value="simples">Lista Simples (Nome, Telefone)</option>
                             </select>
                         </div>
                         <div class="col-span-2 md:col-span-1">
                             <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Classificar como</label>
-                            <select id="colar-tipo" class="w-full bg-white border border-apple-border rounded-xl px-4 py-2.5 mt-1.5 text-sm outline-none transition-all cursor-pointer">
+                            <select id="colar-tipo" class="w-full bg-white border border-apple-border rounded-xl px-4 py-2.5 mt-1.5 text-sm outline-none transition-all cursor-pointer font-medium text-apple-text">
                                 <option value="Normal">Normal</option>
                                 <option value="VIP">VIP</option>
                             </select>
                         </div>
                     </div>
                     
-                    <textarea id="texto-csv" placeholder="Cole os dados aqui..." class="w-full h-40 bg-white border border-apple-border rounded-xl p-4 text-sm font-mono outline-none focus:ring-2 focus:ring-brand-400 transition-all resize-none shadow-inner"></textarea>
+                    <textarea id="texto-csv" placeholder="Ex:&#10;Código cliente&#09;Data cadastro&#09;Nome...&#10;ou&#10;49.074.734/0001-04&#09;ROMARIA...&#09;MANAUS..." class="w-full h-48 bg-white border border-apple-border rounded-xl p-4 text-sm font-mono outline-none focus:ring-2 focus:ring-brand-400 transition-all resize-none shadow-inner"></textarea>
                     
                     <button onclick="processarTextoColado()" class="w-full mt-4 bg-brand-600 hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">
                         <i class="ph ph-check-circle text-lg"></i> Processar Dados Colados
@@ -1131,37 +1125,10 @@
             closeModal('modal-novo-lead');
         };
 
-        // --- SISTEMA DE IMPORTAÇÃO BLINDADO ---
+        // =========================================================================
+        // NOVO MOTOR DE PROCESSAMENTO DE CSV / TEXTO (TOTALMENTE REESTRUTURADO)
+        // =========================================================================
 
-        // Método 1: Puxar Ficheiros da Pasta (Fetch)
-        window.puxarDaPasta = async (fileName, layoutType, clienteType) => {
-            try {
-                showToast(`A tentar ler ${fileName} da pasta...`, "info");
-                
-                // Tenta puxar o ficheiro na mesma diretoria
-                const response = await fetch(`./${fileName}`);
-                
-                if (!response.ok) {
-                    throw new Error(`Ficheiro não encontrado ou bloqueado pelo navegador.`);
-                }
-                
-                const textoCSV = await response.text();
-                
-                if(!textoCSV || textoCSV.trim() === '') {
-                    showToast(`O ficheiro ${fileName} está vazio!`, "warning");
-                    return;
-                }
-
-                // Envia para o processador central
-                await processarTextoCSV(textoCSV, layoutType, clienteType);
-
-            } catch (error) {
-                console.error("Erro no Fetch:", error);
-                showToast(`Falha a ler da pasta. Motivo provável: Segurança do Navegador bloqueou o ficheiro. Use a opção 'Copiar e Colar'.`, "error");
-            }
-        };
-
-        // Método 2: Processar texto colado na TextArea
         window.processarTextoColado = async () => {
             const texto = document.getElementById('texto-csv').value;
             const layout = document.getElementById('colar-layout').value;
@@ -1172,22 +1139,21 @@
                 return;
             }
 
-            await processarTextoCSV(texto, layout, tipo);
-            // Limpar textarea após uso com sucesso
+            await processarNovoMotorCSV(texto, layout, tipo);
+            // Limpa após usar com sucesso
             document.getElementById('texto-csv').value = '';
         };
 
-        // O Motor Central de Processamento de Dados (Anti-Duplicados)
-        async function processarTextoCSV(text, layout, tipoBase) {
+        async function processarNovoMotorCSV(text, layout, tipoBase) {
             const loader = document.getElementById('loading-screen');
             const loaderText = document.getElementById('global-loading-text');
             
             loader.classList.remove('hidden');
-            loaderText.innerText = "A validar dados...";
+            loaderText.innerText = "A validar dados estruturados...";
 
             try {
-                // Separa por linhas (suporta Mac, Windows, Linux)
-                const lines = text.split(/\r\n|\n|\r/);
+                // Divide por quebras de linha universalmente (Win, Mac, Linux)
+                const lines = text.split(/\r\n|\n|\r/).filter(l => l.trim() !== '');
                 if(lines.length < 1) throw new Error("Ficheiro vazio");
 
                 let countImported = 0;
@@ -1195,89 +1161,95 @@
                 let countInvalid = 0;
                 let promisesBatch = [];
                 
-                // Set para cruzar e bloquear os duplicados rapidamente
-                const telefonesExistentes = new Set(allLeads.map(l => l.telefone));
+                // Set para cruzar telefones e evitar duplicados em tempo real
+                const telefonesExistentes = new Set(allLeads.map(l => l.telefone.replace(/\D/g, '')));
                 const telefonesNesteLote = new Set(); 
 
-                // Identificar o Separador (Tolerância a vírgulas, ponto e vírgula e tabulação)
-                const sample = lines.slice(0, Math.min(10, lines.length)).join('\n');
+                // Detetar o separador analisando a primeira linha
+                const sample = lines[0];
                 let sep = '\t';
                 if(sample.split(';').length > sample.split('\t').length) sep = ';';
                 if(sample.split(',').length > sample.split(';').length && sample.split(',').length > sample.split('\t').length) sep = ',';
 
-                for(let i = 0; i < lines.length; i++) { 
-                    const line = lines[i].trim();
-                    if(!line) continue;
-                    
-                    const cols = line.split(sep).map(c => c.trim().replace(/^["']|["']$/g, ''));
-                    
-                    // Ignora cabeçalhos
-                    if (cols.some(c => c.toLowerCase().includes('código') || c.toLowerCase().includes('nome') || c.toLowerCase() === 'cnpj' || c.toLowerCase().includes('telefone'))) {
-                        continue;
-                    }
+                // Helper para partir colunas e limpar aspas " " indesejadas
+                const parseLine = (line) => line.split(sep).map(col => col.trim().replace(/^["']|["']$/g, ''));
 
+                for(let i = 0; i < lines.length; i++) { 
+                    const cols = parseLine(lines[i]);
                     let n = '', t = '', uf = '', origem = '', ultimaCompra = null, tag = 'Novo';
                     
                     if (layout === 'clientes') {
-                        n = cols[3] || cols[4] || ''; 
+                        // Salta o Cabeçalho (identifica se a palavra Código ou Data estiver presente)
+                        if (i === 0 && (cols[0].toLowerCase().includes('código') || cols[1].toLowerCase().includes('data'))) continue;
+
+                        /* ÍNDICES BASE DE CLIENTES FORNECIDOS:
+                           3: Nome cliente, 9: Estado (UF), 13: Telefone principal, 15: Última compra */
+                        n = cols[3] || cols[4] || 'Cliente Sem Nome'; 
                         t = cols[13] || cols[14] || ''; 
                         uf = cols[9] || ''; 
                         origem = 'Base Antiga';
-                        if (cols[15] && cols[15].includes('/')) {
-                            const parts = cols[15].split(' ')[0].split('/');
-                            if (parts.length === 3) ultimaCompra = `${parts[2]}-${parts[1]}-${parts[0]}`;
+
+                        if (cols[15] && cols[15].trim() !== '') {
+                            let dataStr = cols[15].split(' ')[0]; // Remove a hora caso exista "12/05/2023 14:00"
+                            if (dataStr.includes('/')) {
+                                const parts = dataStr.split('/');
+                                if (parts.length === 3) ultimaCompra = `${parts[2]}-${parts[1]}-${parts[0]}`; // Formata ISO
+                            } else if (dataStr.includes('-')) {
+                                ultimaCompra = dataStr;
+                            }
                         }
+
                     } else if (layout === 'leads') {
-                        n = cols[2] || cols[1] || ''; 
-                        t = cols[8] || cols[9] || ''; 
+                        // Salta o Cabeçalho caso a pessoa tenha copiado acidentalmente a linha título
+                        if (i === 0 && cols[0].toLowerCase().includes('cnpj')) continue;
+
+                        /* ÍNDICES LEADS ATACADO FORNECIDOS:
+                           0: CNPJ, 1: Razão Social, 2: Nome Fantasia, 7: Estado, 8: Telefone */
+                        n = (cols[2] && cols[2].trim() !== '') ? cols[2] : (cols[1] || 'Empresa Sem Nome'); 
+                        t = cols[8] || ''; 
                         uf = cols[7] || ''; 
-                        origem = 'Comprado'; 
+                        origem = 'Comprado';
+
                     } else if (layout === 'simples') {
-                        n = cols[0] || '';
+                        n = cols[0] || 'Nome não definido';
                         t = cols[1] || '';
                         origem = 'Importação Manual';
                     }
                     
-                    // CAÇADOR DE NOMES
-                    if (!n || n.length < 2 || n === 'Cliente Desconhecido') {
-                        const potentialName = cols.find(c => c && !c.includes('@') && !c.includes('//') && c.replace(/\D/g, '').length < 8 && c.trim().length > 2 && isNaN(c));
-                        n = potentialName ? potentialName.trim() : 'Cliente Sem Nome';
-                    }
+                    // Tratamento rigoroso do número de telefone
+                    let cleanPhone = t ? t.replace(/\D/g, '') : '';
 
-                    // CAÇADOR DE TELEFONES
-                    let cleanPhone = t.replace(/\D/g, '');
+                    // FALLBACK SEGURO: Se a coluna do telefone falhou/veio vazia, tenta "caçar" um telefone numérico na linha
                     if (cleanPhone.length < 10) {
-                        const potentialPhone = cols.find(c => {
-                            if(!c) return false;
-                            if(c.includes('@') || c.includes('//') || c.toLowerCase().includes('rua') || c.toLowerCase().includes('cep')) return false;
+                        const possiblePhoneCol = cols.find(c => {
+                            if(!c || c.includes('@') || c.toLowerCase().includes('cep')) return false;
                             const digits = c.replace(/\D/g, '');
-                            return digits.length >= 10 && digits.length <= 15 && !c.toLowerCase().includes('cnpj');
+                            return digits.length >= 10 && digits.length <= 14 && !c.toLowerCase().includes('cnpj');
                         });
-                        if (potentialPhone) cleanPhone = potentialPhone.replace(/\D/g, '');
+                        if (possiblePhoneCol) cleanPhone = possiblePhoneCol.replace(/\D/g, '');
                     }
 
-                    // VALIDAÇÃO & INSERÇÃO
+                    // Validação final de tamanho e Inserção
                     if(cleanPhone.length >= 10 && cleanPhone.length <= 15) { 
                         
-                        // Verifica duplicação no banco de dados E no lote atual
                         if (telefonesExistentes.has(cleanPhone) || telefonesNesteLote.has(cleanPhone)) {
                             countDuplicates++;
                         } else {
-                            telefonesNesteLote.add(cleanPhone); // Marca como processado
+                            telefonesNesteLote.add(cleanPhone); // Regista no lote atual para bloquear clones
                             
                             const docId = 'imp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
                             
                             promisesBatch.push(
                                 setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leads_v2', docId), {
                                     nome: n, telefone: cleanPhone, uf: uf, tipoCliente: tipoBase, origem: origem, 
-                                    dataEntrada: hoje, dataUltimaCompra: ultimaCompra, tag: tag, historico: []
+                                    dataEntrada: hoje, dataUltimaCompra: ultimaCompra, tag: tag, historico: [], status: 'Novo'
                                 })
                             );
                             countImported++;
                             
-                            // Guardar no Firebase aos poucos (em pacotes de 100) para não travar
+                            // Guardar na Base de Dados aos poucos (lotes de 100) para não rebentar a memória
                             if (promisesBatch.length >= 100) {
-                                loaderText.innerText = `A guardar... (${countImported} salvos)`;
+                                loaderText.innerText = `A guardar... (${countImported} gravados)`;
                                 await Promise.all(promisesBatch);
                                 promisesBatch = [];
                             }
@@ -1287,21 +1259,21 @@
                     }
                 }
                 
-                // Guardar o resto do pacote final
+                // Guardar resto do lote final
                 if (promisesBatch.length > 0) {
-                    loaderText.innerText = `A finalizar... (${countImported} salvos)`;
+                    loaderText.innerText = `A finalizar... (${countImported} gravados)`;
                     await Promise.all(promisesBatch);
                 }
                 
-                showToast(`Sucesso! ${countImported} novos salvos. (${countDuplicates} duplicados ignorados, ${countInvalid} inválidos)`, countImported > 0 ? 'success' : 'warning');
+                showToast(`Sucesso! ${countImported} clientes importados. (${countDuplicates} duplicados ignorados, ${countInvalid} inválidos/sem telemóvel)`, countImported > 0 ? 'success' : 'warning');
                 closeModal('modal-import');
                 
-                // Atualiza a vista se estiver na tab correspondente
+                // Força atualização visual da página
                 if (currentView === 'base' || currentView === 'comprados') renderCurrentView();
                 
             } catch (error) {
-                console.error("Erro importação:", error);
-                showToast("Erro crítico a processar texto. Estrutura inválida.", "error");
+                console.error("Erro crítico de importação:", error);
+                showToast("Erro ao processar as colunas. Verifique a estrutura do texto colado.", "error");
             } finally {
                 loader.classList.add('hidden');
             }
