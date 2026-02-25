@@ -8,6 +8,8 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <!-- jsPDF para gerar o catálogo -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- PapaParse para importação CSV robusta -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -220,53 +222,48 @@
                 <button onclick="closeModal('modal-import')" class="bg-apple-bg hover:bg-gray-200 p-2 rounded-full transition-colors text-apple-textMut"><i class="ph ph-x text-lg"></i></button>
             </div>
             
-            <div class="p-8 overflow-y-auto space-y-8 bg-white flex-1">
+            <div class="p-8 overflow-y-auto bg-white flex-1">
                 
-                <!-- MÉTODO 1: LER DA PASTA -->
-                <div class="bg-blue-50/50 border border-blue-200 rounded-2xl p-6 relative overflow-hidden hidden"> <!-- Ocultado temporariamente para focar no copiar e colar que é garantido -->
-                    <div class="absolute -right-4 -top-4 text-blue-100"><i class="ph-fill ph-folder text-9xl"></i></div>
-                    <div class="relative z-10">
-                        <h4 class="font-bold text-blue-900 text-lg flex items-center gap-2 mb-2"><i class="ph ph-folder-open"></i> Puxar da Pasta</h4>
-                        <p class="text-sm text-blue-700 mb-5 font-medium">Deixe os ficheiros na mesma pasta deste sistema web e clique para puxar.</p>
-                        
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <button onclick="puxarDaPasta('clientes.csv', 'clientes', 'Normal')" class="flex-1 bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 py-3 px-4 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 group">
-                                <i class="ph ph-users text-lg group-hover:scale-110 transition-transform"></i> Puxar clientes.csv
-                            </button>
-                            <button onclick="puxarDaPasta('leads.csv', 'leads', 'Normal')" class="flex-1 bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 py-3 px-4 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 group">
-                                <i class="ph ph-funnel text-lg group-hover:scale-110 transition-transform"></i> Puxar leads.csv
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- MÉTODO 2: COLAR DADOS -->
+                <!-- NOVO MÉTODO: IMPORTAR ARQUIVO COM PAPAPARSE -->
                 <div class="bg-apple-bg/30 border border-apple-border/50 rounded-2xl p-6">
-                    <h4 class="font-bold text-apple-text text-lg flex items-center gap-2 mb-2"><i class="ph ph-clipboard-text"></i> Copiar e Colar (Método Recomendado)</h4>
-                    <p class="text-sm text-apple-textMut mb-5 font-medium">Abra o seu Excel ou CSV, selecione todos os dados (Ctrl+C) e cole na caixa abaixo (Ctrl+V).</p>
+                    <h4 class="font-bold text-apple-text text-lg flex items-center gap-2 mb-2"><i class="ph ph-file-csv text-brand-500"></i> Importar Arquivo (Excel/CSV)</h4>
+                    <p class="text-sm text-apple-textMut mb-6 font-medium">Selecione o formato dos dados e adicione o seu arquivo. O sistema ignora duplicados automaticamente.</p>
                     
-                    <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="grid grid-cols-2 gap-4 mb-6">
                         <div class="col-span-2 md:col-span-1">
-                            <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Layout dos Dados</label>
-                            <select id="colar-layout" class="w-full bg-white border border-apple-border rounded-xl px-4 py-2.5 mt-1.5 text-sm outline-none transition-all cursor-pointer font-medium text-apple-text">
-                                <option value="clientes">Base de Clientes (Código, Nome, Telefone...)</option>
-                                <option value="leads">Leads Atacado (CNPJ, Razão Social, Bairro...)</option>
+                            <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Layout do Arquivo</label>
+                            <select id="colar-layout" class="w-full bg-white border border-apple-border rounded-xl px-4 py-3 mt-1.5 text-sm outline-none transition-all cursor-pointer font-medium text-apple-text focus:ring-2 focus:ring-brand-400">
+                                <option value="clientes">Base de Clientes (Código, Nome...)</option>
+                                <option value="leads">Leads Atacado (CNPJ, Fantasia, Bairro...)</option>
                                 <option value="simples">Lista Simples (Nome, Telefone)</option>
                             </select>
                         </div>
                         <div class="col-span-2 md:col-span-1">
                             <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Classificar como</label>
-                            <select id="colar-tipo" class="w-full bg-white border border-apple-border rounded-xl px-4 py-2.5 mt-1.5 text-sm outline-none transition-all cursor-pointer font-medium text-apple-text">
+                            <select id="colar-tipo" class="w-full bg-white border border-apple-border rounded-xl px-4 py-3 mt-1.5 text-sm outline-none transition-all cursor-pointer font-medium text-apple-text focus:ring-2 focus:ring-brand-400">
                                 <option value="Normal">Normal</option>
                                 <option value="VIP">VIP</option>
                             </select>
                         </div>
                     </div>
                     
-                    <textarea id="texto-csv" placeholder="Ex:&#10;Código cliente&#09;Data cadastro&#09;Nome...&#10;ou&#10;49.074.734/0001-04&#09;ROMARIA...&#09;MANAUS..." class="w-full h-48 bg-white border border-apple-border rounded-xl p-4 text-sm font-mono outline-none focus:ring-2 focus:ring-brand-400 transition-all resize-none shadow-inner"></textarea>
+                    <div id="drop-zone" class="border-2 border-dashed border-apple-border hover:border-brand-500 hover:bg-brand-50 rounded-[1.5rem] p-10 text-center cursor-pointer transition-all duration-300 bg-white group">
+                        <div class="w-16 h-16 bg-apple-bg group-hover:bg-white rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
+                            <i class="ph ph-upload-simple text-2xl text-apple-textMut group-hover:text-brand-500 transition-colors"></i>
+                        </div>
+                        <p class="text-sm font-bold text-apple-text">Clique para selecionar ou arraste o arquivo</p>
+                        <p class="text-xs text-apple-textMut mt-1 font-medium">Apenas arquivos .csv ou .txt</p>
+                        
+                        <input type="file" id="csv-file-input" class="hidden" accept=".csv, .txt">
+                        
+                        <div id="file-name-container" class="mt-4 hidden p-3 bg-brand-50 rounded-xl border border-brand-100 flex items-center justify-center gap-2">
+                            <i class="ph-fill ph-file-csv text-brand-500 text-lg"></i>
+                            <p id="file-name" class="text-xs text-brand-700 font-bold truncate max-w-[200px]"></p>
+                        </div>
+                    </div>
                     
-                    <button onclick="processarTextoColado()" class="w-full mt-4 bg-brand-600 hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">
-                        <i class="ph ph-check-circle text-lg"></i> Processar Dados Colados
+                    <button onclick="processarArquivoCSV()" id="btn-processar-csv" class="w-full mt-6 bg-brand-600 hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-600" disabled>
+                        <i class="ph ph-check-circle text-lg"></i> Iniciar Importação
                     </button>
                 </div>
 
@@ -1129,113 +1126,161 @@
         // NOVO MOTOR DE PROCESSAMENTO DE CSV / TEXTO (TOTALMENTE REESTRUTURADO)
         // =========================================================================
 
-        window.processarTextoColado = async () => {
-            const texto = document.getElementById('texto-csv').value;
-            const layout = document.getElementById('colar-layout').value;
-            const tipo = document.getElementById('colar-tipo').value;
+        let arquivoCSVSelecionado = null;
 
-            if(!texto || texto.trim() === '') {
-                showToast("Por favor, cole os dados na caixa de texto primeiro.", "warning");
+        document.getElementById('drop-zone').addEventListener('click', () => document.getElementById('csv-file-input').click());
+        
+        document.getElementById('drop-zone').addEventListener('dragover', e => { 
+            e.preventDefault(); e.stopPropagation(); 
+            document.getElementById('drop-zone').classList.add('border-brand-500', 'bg-brand-50'); 
+        });
+        
+        document.getElementById('drop-zone').addEventListener('dragleave', e => { 
+            e.preventDefault(); e.stopPropagation(); 
+            document.getElementById('drop-zone').classList.remove('border-brand-500', 'bg-brand-50'); 
+        });
+        
+        document.getElementById('drop-zone').addEventListener('drop', e => {
+            e.preventDefault(); e.stopPropagation(); 
+            document.getElementById('drop-zone').classList.remove('border-brand-500', 'bg-brand-50');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+        
+        document.getElementById('csv-file-input').addEventListener('change', e => { 
+            if (e.target.files && e.target.files[0]) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            arquivoCSVSelecionado = file;
+            document.getElementById('file-name').textContent = file.name;
+            document.getElementById('file-name-container').classList.remove('hidden');
+            document.getElementById('file-name-container').classList.add('flex');
+            document.getElementById('btn-processar-csv').disabled = false;
+        }
+
+        window.processarArquivoCSV = () => {
+            if (!arquivoCSVSelecionado) {
+                showToast("Por favor, selecione um arquivo primeiro.", "warning");
                 return;
             }
 
-            await processarNovoMotorCSV(texto, layout, tipo);
-            // Limpa após usar com sucesso
-            document.getElementById('texto-csv').value = '';
-        };
+            if (!window.Papa) {
+                showToast("Biblioteca PapaParse não carregada. Atualize a página.", "error");
+                return;
+            }
 
-        async function processarNovoMotorCSV(text, layout, tipoBase) {
+            const layout = document.getElementById('colar-layout').value;
+            const tipo = document.getElementById('colar-tipo').value;
             const loader = document.getElementById('loading-screen');
             const loaderText = document.getElementById('global-loading-text');
-            
+
             loader.classList.remove('hidden');
-            loaderText.innerText = "A validar dados estruturados...";
+            loaderText.innerText = "A ler arquivo e preparar dados...";
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                let text = e.target.result;
+                if (text.startsWith('\uFEFF')) {
+                    text = text.substring(1);
+                }
+                
+                Papa.parse(text, {
+                    header: false, // Lê como array para lidar com os ficheiros sem cabeçalho e por index exato
+                    skipEmptyLines: true,
+                    transform: (value) => value.trim().replace(/^['"]|['"]$/g, ''),
+                    complete: async (results) => {
+                        if (results.errors.length > 0) console.warn("Erros PapaParse:", results.errors);
+                        await processarArrayPapaParse(results.data, layout, tipo);
+                    },
+                    error: (err) => { 
+                        console.error("Erro PapaParse:", err); 
+                        showToast("Falha ao ler a estrutura do CSV.", "error"); 
+                        loader.classList.add('hidden');
+                    }
+                });
+            };
+            reader.readAsText(arquivoCSVSelecionado, 'windows-1252');
+        };
+
+        async function processarArrayPapaParse(linhas, layout, tipoBase) {
+            const loader = document.getElementById('loading-screen');
+            const loaderText = document.getElementById('global-loading-text');
+            loaderText.innerText = "A cruzar dados e gravar...";
 
             try {
-                // Divide por quebras de linha universalmente (Win, Mac, Linux)
-                const lines = text.split(/\r\n|\n|\r/).filter(l => l.trim() !== '');
-                if(lines.length < 1) throw new Error("Ficheiro vazio");
-
                 let countImported = 0;
                 let countDuplicates = 0;
                 let countInvalid = 0;
                 let promisesBatch = [];
                 
-                // Set para cruzar telefones e evitar duplicados em tempo real
                 const telefonesExistentes = new Set(allLeads.map(l => l.telefone.replace(/\D/g, '')));
                 const telefonesNesteLote = new Set(); 
 
-                // Detetar o separador analisando a primeira linha
-                const sample = lines[0];
-                let sep = '\t';
-                if(sample.split(';').length > sample.split('\t').length) sep = ';';
-                if(sample.split(',').length > sample.split(';').length && sample.split(',').length > sample.split('\t').length) sep = ',';
+                for(let i = 0; i < linhas.length; i++) { 
+                    const cols = linhas[i];
+                    if (!cols || cols.length === 0) continue;
 
-                // Helper para partir colunas e limpar aspas " " indesejadas
-                const parseLine = (line) => line.split(sep).map(col => col.trim().replace(/^["']|["']$/g, ''));
-
-                for(let i = 0; i < lines.length; i++) { 
-                    const cols = parseLine(lines[i]);
                     let n = '', t = '', uf = '', origem = '', ultimaCompra = null, tag = 'Novo';
                     
                     if (layout === 'clientes') {
-                        // Salta o Cabeçalho (identifica se a palavra Código ou Data estiver presente)
-                        if (i === 0 && (cols[0].toLowerCase().includes('código') || cols[1].toLowerCase().includes('data'))) continue;
+                        // Verifica cabeçalho
+                        if (i === 0 && (String(cols[0]).toLowerCase().includes('código') || String(cols[1]).toLowerCase().includes('data'))) continue;
 
-                        /* ÍNDICES BASE DE CLIENTES FORNECIDOS:
-                           3: Nome cliente, 9: Estado (UF), 13: Telefone principal, 15: Última compra */
-                        n = cols[3] || cols[4] || 'Cliente Sem Nome'; 
+                        n = cols[3] || 'Cliente Sem Nome'; 
                         t = cols[13] || cols[14] || ''; 
                         uf = cols[9] || ''; 
                         origem = 'Base Antiga';
 
-                        if (cols[15] && cols[15].trim() !== '') {
-                            let dataStr = cols[15].split(' ')[0]; // Remove a hora caso exista "12/05/2023 14:00"
+                        if (cols[15] && String(cols[15]).trim() !== '') {
+                            let dataStr = String(cols[15]).split(' ')[0]; 
                             if (dataStr.includes('/')) {
                                 const parts = dataStr.split('/');
-                                if (parts.length === 3) ultimaCompra = `${parts[2]}-${parts[1]}-${parts[0]}`; // Formata ISO
+                                if (parts.length === 3) ultimaCompra = `${parts[2]}-${parts[1]}-${parts[0]}`; 
                             } else if (dataStr.includes('-')) {
                                 ultimaCompra = dataStr;
                             }
                         }
 
                     } else if (layout === 'leads') {
-                        // Salta o Cabeçalho caso a pessoa tenha copiado acidentalmente a linha título
-                        if (i === 0 && cols[0].toLowerCase().includes('cnpj')) continue;
+                        if (i === 0 && String(cols[0]).toLowerCase().includes('cnpj')) continue;
 
-                        /* ÍNDICES LEADS ATACADO FORNECIDOS:
-                           0: CNPJ, 1: Razão Social, 2: Nome Fantasia, 7: Estado, 8: Telefone */
-                        n = (cols[2] && cols[2].trim() !== '') ? cols[2] : (cols[1] || 'Empresa Sem Nome'); 
+                        n = (cols[2] && String(cols[2]).trim() !== '') ? cols[2] : (cols[1] || 'Empresa Sem Nome'); 
                         t = cols[8] || ''; 
                         uf = cols[7] || ''; 
                         origem = 'Comprado';
 
                     } else if (layout === 'simples') {
+                        if (i === 0 && String(cols[0]).toLowerCase().includes('nome')) continue;
                         n = cols[0] || 'Nome não definido';
                         t = cols[1] || '';
                         origem = 'Importação Manual';
                     }
                     
-                    // Tratamento rigoroso do número de telefone
-                    let cleanPhone = t ? t.replace(/\D/g, '') : '';
+                    if(String(n).toLowerCase() === 'nome cliente') continue;
 
-                    // FALLBACK SEGURO: Se a coluna do telefone falhou/veio vazia, tenta "caçar" um telefone numérico na linha
+                    let cleanPhone = t ? String(t).replace(/\D/g, '') : '';
+
                     if (cleanPhone.length < 10) {
                         const possiblePhoneCol = cols.find(c => {
-                            if(!c || c.includes('@') || c.toLowerCase().includes('cep')) return false;
-                            const digits = c.replace(/\D/g, '');
-                            return digits.length >= 10 && digits.length <= 14 && !c.toLowerCase().includes('cnpj');
+                            if(!c) return false;
+                            let strC = String(c);
+                            if(strC.includes('@') || strC.toLowerCase().includes('cep')) return false;
+                            const digits = strC.replace(/\D/g, '');
+                            return digits.length >= 10 && digits.length <= 15 && !strC.toLowerCase().includes('cnpj');
                         });
-                        if (possiblePhoneCol) cleanPhone = possiblePhoneCol.replace(/\D/g, '');
+                        if (possiblePhoneCol) cleanPhone = String(possiblePhoneCol).replace(/\D/g, '');
                     }
 
-                    // Validação final de tamanho e Inserção
                     if(cleanPhone.length >= 10 && cleanPhone.length <= 15) { 
                         
                         if (telefonesExistentes.has(cleanPhone) || telefonesNesteLote.has(cleanPhone)) {
                             countDuplicates++;
                         } else {
-                            telefonesNesteLote.add(cleanPhone); // Regista no lote atual para bloquear clones
+                            telefonesNesteLote.add(cleanPhone); 
                             
                             const docId = 'imp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
                             
@@ -1247,7 +1292,6 @@
                             );
                             countImported++;
                             
-                            // Guardar na Base de Dados aos poucos (lotes de 100) para não rebentar a memória
                             if (promisesBatch.length >= 100) {
                                 loaderText.innerText = `A guardar... (${countImported} gravados)`;
                                 await Promise.all(promisesBatch);
@@ -1259,21 +1303,26 @@
                     }
                 }
                 
-                // Guardar resto do lote final
                 if (promisesBatch.length > 0) {
                     loaderText.innerText = `A finalizar... (${countImported} gravados)`;
                     await Promise.all(promisesBatch);
                 }
                 
-                showToast(`Sucesso! ${countImported} clientes importados. (${countDuplicates} duplicados ignorados, ${countInvalid} inválidos/sem telemóvel)`, countImported > 0 ? 'success' : 'warning');
+                showToast(`Sucesso! ${countImported} clientes salvos. (${countDuplicates} duplicados ignorados, ${countInvalid} inválidos/sem telemóvel)`, countImported > 0 ? 'success' : 'warning');
                 closeModal('modal-import');
                 
-                // Força atualização visual da página
+                // Limpa o estado
+                arquivoCSVSelecionado = null;
+                document.getElementById('csv-file-input').value = '';
+                document.getElementById('file-name-container').classList.add('hidden');
+                document.getElementById('file-name-container').classList.remove('flex');
+                document.getElementById('btn-processar-csv').disabled = true;
+                
                 if (currentView === 'base' || currentView === 'comprados') renderCurrentView();
                 
             } catch (error) {
-                console.error("Erro crítico de importação:", error);
-                showToast("Erro ao processar as colunas. Verifique a estrutura do texto colado.", "error");
+                console.error("Erro crítico de importação PapaParse:", error);
+                showToast("Erro ao processar as colunas.", "error");
             } finally {
                 loader.classList.add('hidden');
             }
