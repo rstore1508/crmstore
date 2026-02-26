@@ -1296,9 +1296,9 @@
         }
 
         // --- IMPORT & CREATION ---
-        window.openImportModal = () => document.getElementById('modal-import').classList.remove('hidden', 'flex'), document.getElementById('modal-import').classList.add('flex');
-        window.openNovoLeadModal = () => document.getElementById('modal-novo-lead').classList.remove('hidden', 'flex'), document.getElementById('modal-novo-lead').classList.add('flex');
-        window.closeModal = (id) => document.getElementById(id).classList.add('hidden'), document.getElementById(id).classList.remove('flex');
+        window.openImportModal = () => { document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('modal-import').classList.add('flex'); };
+        window.openNovoLeadModal = () => { document.getElementById('modal-novo-lead').classList.remove('hidden'); document.getElementById('modal-novo-lead').classList.add('flex'); };
+        window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); };
 
         window.salvarNovoLead = async () => {
             const n = document.getElementById('fnome').value, t = document.getElementById('ftel').value;
