@@ -288,7 +288,85 @@
         </div>
     </main>
 
-    <!-- Modals -->
+    <!-- ================= MODAIS ================= -->
+
+    <!-- Modal Perfil Completo Cliente -->
+    <div id="modal-perfil" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-4xl m-4 h-[85vh] overflow-hidden slide-up border border-white/50 flex flex-col">
+            
+            <div class="px-8 py-5 border-b border-apple-border/30 flex justify-between items-center bg-apple-bg/50 backdrop-blur-sm shrink-0">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-brand-600 font-bold text-xl border border-apple-border/50" id="perfil-avatar"></div>
+                    <div>
+                        <h3 class="font-bold text-xl text-apple-text tracking-tight" id="perfil-nome">Carregando...</h3>
+                        <p class="text-xs font-semibold text-apple-textMut mt-0.5 uppercase tracking-wider" id="perfil-tipo-origem">...</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="abrirWhatsAppPerfil()" class="bg-brand-50 hover:bg-brand-500 text-brand-600 hover:text-white px-4 py-2 rounded-full transition-all text-sm font-bold flex items-center gap-2 border border-brand-200 shadow-sm"><i class="ph ph-whatsapp-logo text-lg"></i> Iniciar Chat</button>
+                    <button onclick="closeModal('modal-perfil')" class="bg-apple-bg hover:bg-gray-200 p-2 rounded-full transition-colors text-apple-textMut border border-apple-border/50"><i class="ph ph-x text-lg"></i></button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto bg-white p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Coluna Esquerda: Info Principal -->
+                <div class="md:col-span-1 space-y-6">
+                    <div class="bg-apple-bg/40 p-5 rounded-2xl border border-apple-border/30">
+                        <h4 class="text-xs font-bold text-apple-textMut uppercase tracking-wider mb-4 border-b border-apple-border/50 pb-2">Contato Principal</h4>
+                        <div class="space-y-3">
+                            <div><span class="text-[10px] text-apple-textMut block font-semibold">Telefone</span><span class="text-sm font-bold text-apple-text block" id="perfil-tel">-</span></div>
+                            <div><span class="text-[10px] text-apple-textMut block font-semibold">E-mail</span><span class="text-sm font-bold text-apple-text block truncate" id="perfil-email" title="N/A">-</span></div>
+                            <div><span class="text-[10px] text-apple-textMut block font-semibold">Localização</span><span class="text-sm font-bold text-apple-text block" id="perfil-loc">-</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-apple-bg/40 p-5 rounded-2xl border border-apple-border/30">
+                        <h4 class="text-xs font-bold text-apple-textMut uppercase tracking-wider mb-4 border-b border-apple-border/50 pb-2">Métricas CRM</h4>
+                        <div class="space-y-3">
+                            <div><span class="text-[10px] text-apple-textMut block font-semibold">Status Atual</span><span class="text-sm font-bold block" id="perfil-status-badge">-</span></div>
+                            <div><span class="text-[10px] text-apple-textMut block font-semibold">Tag</span><span class="text-xs font-bold px-2 py-0.5 bg-gray-100 border border-gray-300 rounded inline-block mt-1 text-gray-700" id="perfil-tag">-</span></div>
+                            <div><span class="text-[10px] text-apple-textMut block font-semibold">Última Compra</span><span class="text-sm font-bold text-apple-text block" id="perfil-ultima-compra">-</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coluna Direita: Extras e Ações -->
+                <div class="md:col-span-2 space-y-6">
+                    <!-- Mensagens Prontas -->
+                    <div class="bg-brand-50/50 p-6 rounded-[1.5rem] border border-brand-100">
+                        <h4 class="text-sm font-bold text-brand-800 mb-4 flex items-center gap-2"><i class="ph ph-chat-circle-text text-lg"></i> Mensagens Prontas (Copie e Cole)</h4>
+                        <div class="space-y-3" id="perfil-msgs">
+                            <!-- Gerado via JS -->
+                        </div>
+                    </div>
+                    <!-- Dados Empresariais / Sócios -->
+                    <div class="bg-white p-6 rounded-[1.5rem] border border-apple-border/30 shadow-sm">
+                        <h4 class="text-sm font-bold text-apple-text mb-4 flex items-center gap-2"><i class="ph ph-briefcase text-lg"></i> Dados Empresariais (CNPJ)</h4>
+                        <div class="grid grid-cols-2 gap-4 mb-4" id="perfil-empresa-core"></div>
+                        <div class="bg-apple-bg/50 p-4 rounded-xl text-xs font-mono text-apple-textMut whitespace-pre-wrap max-h-40 overflow-y-auto border border-apple-border/40" id="perfil-empresa-extras">Nenhum dado extra disponível.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Lista KPIs -->
+    <div id="modal-kpi-lista" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-[60] transition-opacity">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl m-4 h-[70vh] overflow-hidden slide-up border border-white/50 flex flex-col">
+            <div class="px-8 py-5 border-b border-apple-border/30 flex justify-between items-center bg-white/80 backdrop-blur-sm shrink-0">
+                <div>
+                    <h3 class="font-bold text-xl text-apple-text tracking-tight" id="kpi-titulo">Clientes</h3>
+                    <p class="text-xs font-semibold text-apple-textMut mt-0.5" id="kpi-sub">Listagem Rápida</p>
+                </div>
+                <button onclick="closeModal('modal-kpi-lista')" class="bg-apple-bg hover:bg-gray-200 p-2 rounded-full transition-colors text-apple-textMut"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 bg-apple-bg/20">
+                <div class="space-y-2" id="kpi-list-container">
+                    <!-- Gerado via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Novo Lead -->
     <div id="modal-novo-lead"
         class="fixed inset-0 bg-black/20 backdrop-blur-md hidden items-center justify-center z-50 transition-opacity">
@@ -359,12 +437,10 @@
 
             <div class="p-8 overflow-y-auto bg-white flex-1">
 
-                <!-- IMPORTAR ARQUIVO COM PAPAPARSE -->
                 <div class="bg-apple-bg/30 border border-apple-border/50 rounded-2xl p-6">
                     <h4 class="font-bold text-apple-text text-lg flex items-center gap-2 mb-2"><i
-                            class="ph ph-file-csv text-brand-500"></i> Importar Arquivo (Excel/CSV)</h4>
-                    <p class="text-sm text-apple-textMut mb-6 font-medium">Selecione o formato dos dados e adicione o
-                        seu arquivo. O sistema ignora duplicados automaticamente.</p>
+                            class="ph ph-file-csv text-brand-500"></i> Importar / Colar Dados</h4>
+                    <p class="text-sm text-apple-textMut mb-6 font-medium">Selecione o arquivo ou cole os dados (Ex: Econodata com "👉"). O sistema vai atualizar registos existentes automaticamente.</p>
 
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div class="col-span-2 md:col-span-1">
@@ -373,7 +449,7 @@
                             <select id="colar-layout"
                                 class="w-full bg-white border border-apple-border rounded-xl px-4 py-3 mt-1.5 text-sm outline-none transition-all cursor-pointer font-medium text-apple-text focus:ring-2 focus:ring-brand-400">
                                 <option value="clientes">Base de Clientes (Código, Nome...)</option>
-                                <option value="leads">Leads Atacado (CNPJ, Fantasia, Bairro...)</option>
+                                <option value="leads" selected>Leads Atacado (CNPJ, Razão, Bairro...)</option>
                                 <option value="simples">Lista Simples (Nome, Telefone)</option>
                             </select>
                         </div>
@@ -389,11 +465,9 @@
                         </div>
                     </div>
 
-                    <!-- INPUT ESCONDIDO FORA DA ZONA DE CLIQUE -->
                     <input type="file" id="csv-file-input" class="hidden" accept=".csv,.txt,.xlsx,.xls"
                         onchange="window.handleFileSelect(this.files[0])">
 
-                    <!-- Drag and Drop BLINDADO com Eventos Inline -->
                     <div id="drop-zone" onclick="document.getElementById('csv-file-input').click()"
                         ondragover="event.preventDefault(); this.classList.add('border-brand-500', 'bg-brand-50');"
                         ondragleave="event.preventDefault(); this.classList.remove('border-brand-500', 'bg-brand-50');"
@@ -423,14 +497,13 @@
 
                     <div class="flex items-center gap-4 mb-4">
                         <div class="h-px bg-apple-border flex-1"></div>
-                        <span class="text-[10px] font-bold text-apple-textMut uppercase tracking-widest">OU COLE OS
-                            DADOS (TESTE AQUI)</span>
+                        <span class="text-[10px] font-bold text-apple-textMut uppercase tracking-widest">OU COLE TEXTO DA WEB</span>
                         <div class="h-px bg-apple-border flex-1"></div>
                     </div>
 
                     <textarea id="texto-csv"
-                        oninput="document.getElementById('btn-processar-csv').disabled = this.value.trim().length === 0"
-                        placeholder="Copie do Excel e cole todo o texto aqui..."
+                        oninput="document.getElementById('btn-processar-csv').disabled = (!window.arquivoCSVSelecionado && this.value.trim().length === 0)"
+                        placeholder="Cole blocos do Econodata (ex: 👉 Razão Social: Empresa...) ou do Excel aqui..."
                         class="w-full h-32 bg-apple-bg/50 border border-apple-border/50 rounded-xl p-4 text-sm font-mono outline-none focus:ring-2 focus:ring-brand-400 transition-all resize-none shadow-inner"></textarea>
 
                     <button onclick="processarArquivoCSV()" id="btn-processar-csv"
@@ -438,19 +511,7 @@
                         disabled>
                         <i class="ph ph-check-circle text-lg"></i> Iniciar Importação
                     </button>
-
-                    <div class="flex items-center gap-4 mt-6 mb-4">
-                        <div class="h-px bg-apple-border flex-1"></div>
-                        <span class="text-[10px] font-bold text-apple-textMut uppercase tracking-widest">OU IMPORTE POR
-                            PASTA</span>
-                        <div class="h-px bg-apple-border flex-1"></div>
-                    </div>
-                    <button onclick="closeModal('modal-import'); navigate('pastas');"
-                        class="w-full bg-apple-text hover:bg-black text-white font-bold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">
-                        <i class="ph ph-folder-open text-lg"></i> Ir para Gestão de Pastas
-                    </button>
                 </div>
-
             </div>
         </div>
     </div>
@@ -459,7 +520,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, increment, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, writeBatch, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firebase Config
         const firebaseConfig = {
@@ -572,7 +633,7 @@
                     rotinaTasks = docSnap.data().tasks;
                 } else {
                     rotinaTasks = [
-                        { id: 't1', title: '07:40 - 08:45 | Início: WhatsApp (mensagens noite) e Insta', done: false, doneAt: null },
+                        { id: 't1', title: '07:40 - 08:45 | Início: WhatsApp e Insta', done: false, doneAt: null },
                         { id: 't2', title: '08:45 - 09:00 | ☕ Pausa: Café da Manhã', done: false, doneAt: null },
                         { id: 't3', title: '09:00 - 11:00 | Vendas: Postar VIP e Ligar Leads Frios', done: false, doneAt: null },
                         { id: 't4', title: '11:00 - 13:20 | Site: Carrinhos e Campanhas', done: false, doneAt: null },
@@ -656,14 +717,12 @@
             document.getElementById('page-title').innerText = "Dashboard Inteligente";
             const stats = {
                 normal: {
-                    novos: allLeads.filter(l => l.tipoCliente !== 'VIP' && l.classe === 'Novo Lead').length,
                     posvenda: allLeads.filter(l => l.tipoCliente !== 'VIP' && l.classe === 'Pós-Venda').length,
                     ativos: allLeads.filter(l => l.tipoCliente !== 'VIP' && l.classe === 'Ativo').length,
                     risco: allLeads.filter(l => l.tipoCliente !== 'VIP' && l.classe === 'Risco Inatividade').length,
                     inativos: allLeads.filter(l => l.tipoCliente !== 'VIP' && l.classe === 'Inativo').length,
                 },
                 vip: {
-                    novos: allLeads.filter(l => l.tipoCliente === 'VIP' && l.classe === 'Novo Lead').length,
                     posvenda: allLeads.filter(l => l.tipoCliente === 'VIP' && l.classe === 'Pós-Venda').length,
                     ativos: allLeads.filter(l => l.tipoCliente === 'VIP' && l.classe === 'Ativo').length,
                     risco: allLeads.filter(l => l.tipoCliente === 'VIP' && l.classe === 'Risco Inatividade').length,
@@ -672,16 +731,23 @@
             };
 
             const CardKPI = (title, valNormal, valVip, icon, colorClass) => `
-                <div class="bg-apple-bg/50 p-6 rounded-[1.5rem] border border-apple-border/30 hover:shadow-apple-hover transition-all duration-300 flex flex-col justify-between group">
-                    <div class="flex items-center justify-between mb-4">
+                <div class="bg-apple-bg/50 p-5 rounded-[1.5rem] border border-apple-border/30 hover:shadow-apple-hover transition-all duration-300 flex flex-col justify-between group">
+                    <div class="flex items-center justify-between mb-2">
                         <p class="text-xs font-bold text-apple-textMut uppercase tracking-wider">${title}</p>
                         <div class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
                             <i class="ph ${icon} ${colorClass} text-lg"></i>
                         </div>
                     </div>
-                    <div class="flex gap-6 items-end">
-                        <div><p class="text-3xl font-bold text-apple-text tracking-tight">${valNormal}</p><p class="text-[10px] text-apple-textMut uppercase font-semibold mt-1">Normal</p></div>
-                        <div class="border-l border-apple-border/50 pl-6"><p class="text-3xl font-bold text-vip-600 tracking-tight">${valVip}</p><p class="text-[10px] text-vip-400 uppercase font-semibold mt-1">VIP</p></div>
+                    <div class="flex items-end mt-2 -mx-2">
+                        <div class="flex-1 cursor-pointer hover:bg-black/5 p-2 rounded-xl transition-colors group/norm" onclick="abrirListaKpi('${title}', 'Normal')">
+                            <p class="text-3xl font-bold text-apple-text tracking-tight group-hover/norm:text-brand-600 transition-colors">${valNormal}</p>
+                            <p class="text-[10px] text-apple-textMut uppercase font-semibold mt-1">Normal</p>
+                        </div>
+                        <div class="w-px h-10 bg-apple-border/50 mx-1"></div>
+                        <div class="flex-1 cursor-pointer hover:bg-vip-50 p-2 rounded-xl transition-colors group/vip" onclick="abrirListaKpi('${title}', 'VIP')">
+                            <p class="text-3xl font-bold text-vip-600 tracking-tight group-hover/vip:text-vip-800 transition-colors">${valVip}</p>
+                            <p class="text-[10px] text-vip-400 uppercase font-semibold mt-1">VIP</p>
+                        </div>
                     </div>
                 </div>`;
 
@@ -713,9 +779,8 @@
                     <!-- Rotina & KPIs Lado a Lado -->
                     <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
                         
-                        <!-- Coluna Esquerda: Checklist & Calendário -->
+                        <!-- Coluna Esquerda: Checklist -->
                         <div class="xl:col-span-1 flex flex-col gap-6">
-                            
                             <!-- Rotina Diária (Checklist) -->
                             <div class="bg-apple-bg/40 border border-apple-border/40 rounded-[2rem] overflow-hidden shadow-sm flex flex-col max-h-[450px]">
                                 <div class="p-6 border-b border-apple-border/30 flex items-center gap-4 bg-white/50 backdrop-blur-md">
@@ -729,11 +794,11 @@
                                 </div>
                                 <div class="p-3 flex-1 overflow-y-auto space-y-1.5 bg-white">
                                     ${rotinaTasks.map(t => {
-                const parts = t.title.split('|');
-                const timeHTML = parts.length > 1 ? `<span class="font-bold text-brand-600 mr-1">${parts[0].trim()}</span> <span class="text-apple-border mx-0.5">|</span> ` : '';
-                const titleHTML = parts.length > 1 ? parts[1].trim() : t.title;
+                                        const parts = t.title.split('|');
+                                        const timeHTML = parts.length > 1 ? `<span class="font-bold text-brand-600 mr-1">${parts[0].trim()}</span> <span class="text-apple-border mx-0.5">|</span> ` : '';
+                                        const titleHTML = parts.length > 1 ? parts[1].trim() : t.title;
 
-                return `
+                                        return `
                                         <div class="group flex items-center justify-between p-3 bg-apple-bg/30 rounded-xl hover:bg-apple-bg transition-colors border border-transparent hover:border-apple-border/30 cursor-pointer" onclick="document.getElementById('${t.id}').click()">
                                             <label class="flex items-center gap-3 cursor-pointer flex-1 min-w-0" onclick="event.stopPropagation()">
                                                 <input type="checkbox" id="${t.id}" class="apple-checkbox shrink-0" ${t.done ? 'checked' : ''} onchange="toggleTaskDone('${t.id}', this.checked)">
@@ -744,41 +809,9 @@
                                             ${t.done && t.doneAt ? `<span class="shrink-0 bg-brand-50 text-brand-700 text-[10px] font-bold px-2 py-1 rounded-full border border-brand-100 fade-in flex items-center gap-1">${t.doneAt}</span>` : ''}
                                         </div>
                                         `;
-            }).join('')}
+                                    }).join('')}
                                 </div>
                             </div>
-
-                            <!-- Calendário Sazonal -->
-                            <div class="bg-apple-bg/40 border border-apple-border/40 rounded-[2rem] p-6 shadow-sm">
-                                <div class="flex items-center gap-4 mb-5">
-                                    <div class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-orange-500 shrink-0">
-                                        <i class="ph ph-calendar-star text-xl"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="font-bold text-lg text-apple-text tracking-tight">Datas Sazonais</h3>
-                                        <p class="text-[11px] font-medium text-apple-textMut mt-0.5 uppercase tracking-wider">Atenção às Vendas</p>
-                                    </div>
-                                </div>
-                                <div class="space-y-3">
-                                    <div class="flex items-center gap-3 p-3 bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.02)] border border-apple-border/20">
-                                        <div class="bg-emerald-50 text-emerald-600 font-bold text-xs px-2 py-1.5 rounded-lg shrink-0 w-14 text-center">05 Mar</div>
-                                        <p class="text-sm font-semibold text-apple-text">Pagamento (5º Dia Útil)</p>
-                                    </div>
-                                    <div class="flex items-center gap-3 p-3 bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.02)] border border-apple-border/20">
-                                        <div class="bg-purple-50 text-purple-600 font-bold text-xs px-2 py-1.5 rounded-lg shrink-0 w-14 text-center">08 Mar</div>
-                                        <p class="text-sm font-semibold text-apple-text">Dia da Mulher</p>
-                                    </div>
-                                    <div class="flex items-center gap-3 p-3 bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.02)] border border-apple-border/20">
-                                        <div class="bg-blue-50 text-blue-600 font-bold text-xs px-2 py-1.5 rounded-lg shrink-0 w-14 text-center">15 Mar</div>
-                                        <p class="text-sm font-semibold text-apple-text">Dia do Consumidor</p>
-                                    </div>
-                                    <div class="flex items-center gap-3 p-3 bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.02)] border border-apple-border/20">
-                                        <div class="bg-pink-50 text-pink-600 font-bold text-xs px-2 py-1.5 rounded-lg shrink-0 w-14 text-center">10 Mai</div>
-                                        <p class="text-sm font-semibold text-apple-text">Dia das Mães</p>
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
 
                         <!-- KPIs -->
@@ -826,6 +859,49 @@
                 if (currentView === 'dashboard') renderDashboard(document.getElementById('app-content'));
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'checklists_v2', hoje), { tasks: rotinaTasks }, { merge: true });
             }
+        };
+
+        window.abrirListaKpi = (titleRaw, tipo) => {
+            const m = document.getElementById('modal-kpi-lista');
+            m.classList.remove('hidden'); 
+            m.classList.add('flex');
+            
+            const mapTitle = { 
+                'Pós-Venda': 'Pós-Venda', 
+                'Ativos (<30d)': 'Ativo', 
+                'Risco (>30d)': 'Risco Inatividade', 
+                'Inativos (>90d)': 'Inativo' 
+            };
+            
+            const classTarget = mapTitle[titleRaw];
+            
+            document.getElementById('kpi-titulo').innerText = `${titleRaw} - ${tipo}`;
+            document.getElementById('kpi-sub').innerText = `Clientes marcados como ${classTarget}`;
+
+            const filtrados = allLeads.filter(l => {
+                const isVip = l.tipoCliente === 'VIP';
+                const matchTipo = tipo === 'VIP' ? isVip : !isVip;
+                return l.classe === classTarget && matchTipo;
+            });
+            
+            const container = document.getElementById('kpi-list-container');
+            
+            if(filtrados.length === 0) {
+                container.innerHTML = '<p class="text-center text-sm text-apple-textMut py-8">Nenhum cliente nesta categoria no momento.</p>';
+                return;
+            }
+
+            container.innerHTML = filtrados.map(l => `
+                <div class="flex items-center justify-between p-4 bg-white rounded-xl border border-apple-border/40 hover:shadow-sm transition-all group">
+                    <div>
+                        <p class="font-bold text-sm text-apple-text">${l.nome}</p>
+                        <p class="text-xs text-apple-textMut font-medium">${l.telefone || 'Sem Telefone'}</p>
+                    </div>
+                    <button onclick="abrirPerfil('${l.dbId}'); closeModal('modal-kpi-lista');" class="bg-apple-bg hover:bg-gray-200 text-apple-text px-4 py-2 rounded-full text-xs font-bold transition-colors border border-apple-border/50">
+                        Ver Perfil
+                    </button>
+                </div>
+            `).join('');
         };
 
         // --- CATALOGO VIEW ---
@@ -1129,6 +1205,7 @@
         }
 
         // --- CARRINHOS, COMPRADOS E BASE LOGIC ---
+
         function renderCarrinhos(c) {
             document.getElementById('page-title').innerText = "Carrinhos Abandonados";
             const carrinhos = allLeads.filter(l => l.classe === 'Carrinho');
@@ -1142,7 +1219,7 @@
                                 <div class="flex justify-between items-start mb-4">
                                     <div>
                                         <h3 class="font-bold text-lg text-apple-text tracking-tight">${lead.nome}</h3>
-                                        <p class="text-xs font-semibold text-apple-textMut mt-0.5">${lead.telefone}</p>
+                                        <p class="text-xs font-semibold text-apple-textMut mt-0.5">${lead.telefone || 'S/ Telefone'}</p>
                                     </div>
                                     <span class="text-[10px] font-bold uppercase px-3 py-1.5 rounded-full bg-white text-apple-text border border-apple-border shadow-sm">Tentativa ${lead.tentativas || 0}</span>
                                 </div>
@@ -1151,13 +1228,27 @@
                                         <span class="text-xs font-semibold text-apple-textMut">Próx. Contato:</span>
                                         <span class="text-sm font-bold ${lead.proxRetorno <= hoje ? 'text-red-500' : 'text-apple-text'}">${formatDate(lead.proxRetorno) || 'Hoje'}</span>
                                     </div>
-                                    <button onclick="avancarCarrinho('${lead.dbId}')" class="w-full bg-brand-50 text-brand-700 border border-brand-200 py-3 rounded-xl text-sm font-bold hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all flex justify-center items-center gap-2">
-                                        <i class="ph ph-whatsapp-logo text-lg"></i> Enviar Mensagem
-                                    </button>
+                                    
+                                    <div class="flex gap-2">
+                                        <button onclick="abrirPerfil('${lead.dbId}')" class="flex-1 bg-white text-apple-text border border-apple-border py-2.5 rounded-xl text-sm font-bold hover:bg-gray-50 transition-colors shadow-sm">
+                                            Ver Perfil
+                                        </button>
+                                        <button onclick="avancarCarrinho('${lead.dbId}')" class="flex-[2] bg-brand-50 text-brand-700 border border-brand-200 py-2.5 rounded-xl text-sm font-bold hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all flex justify-center items-center gap-2 shadow-sm">
+                                            <i class="ph ph-whatsapp-logo text-lg"></i> Enviar Msg
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         `).join('')}
-                        ${carrinhos.length === 0 ? '<div class="col-span-full bg-apple-bg/30 border border-apple-border/30 rounded-[2rem] p-16 text-center"><div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm"><i class="ph ph-shopping-cart-simple text-2xl text-apple-textMut"></i></div><p class="font-semibold text-apple-text">Tudo limpo!</p><p class="text-sm text-apple-textMut mt-1">Nenhum carrinho pendente no momento.</p></div>' : ''}
+                        ${carrinhos.length === 0 ? `
+                            <div class="col-span-full bg-apple-bg/30 border border-apple-border/30 rounded-[2rem] p-16 text-center">
+                                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                                    <i class="ph ph-shopping-cart-simple text-2xl text-apple-textMut"></i>
+                                </div>
+                                <p class="font-semibold text-apple-text">Tudo limpo!</p>
+                                <p class="text-sm text-apple-textMut mt-1">Nenhum carrinho pendente no momento.</p>
+                            </div>
+                        ` : ''}
                     </div>
                 </div>
             `;
@@ -1175,24 +1266,27 @@
                     <div class="overflow-x-auto p-2">
                         <table class="w-full text-left text-sm border-separate border-spacing-y-2">
                             <thead class="text-apple-textMut text-xs uppercase tracking-wider font-semibold px-4">
-                                <tr><th class="py-2 px-6">Lead</th><th class="py-2 px-4">Telefone</th><th class="py-2 px-4">Tag Atual</th><th class="py-2 px-4">Próx. Ação</th><th class="py-2 px-6 text-right">Ação</th></tr>
+                                <tr>
+                                    <th class="py-2 px-6">Empresa / Lead</th>
+                                    <th class="py-2 px-4">Telefone</th>
+                                    <th class="py-2 px-4">Cidade/UF</th>
+                                    <th class="py-2 px-4">Tag Atual</th>
+                                    <th class="py-2 px-6 text-right">Ação Rápida</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 ${comprados.map(lead => `
                                     <tr class="bg-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-2xl transition-all duration-300 hover:shadow-md group">
-                                        <td class="py-4 px-6 font-bold text-apple-text rounded-l-2xl">${lead.nome}</td>
+                                        <td class="py-4 px-6 font-bold text-apple-text rounded-l-2xl truncate max-w-[200px]" title="${lead.nome}">${lead.nome}</td>
                                         <td class="py-4 px-4 font-medium text-apple-textMut">${lead.telefone || '-'}</td>
-                                        <td class="py-4 px-4"><span class="px-3 py-1 bg-apple-bg border border-apple-border/50 text-apple-text rounded-full text-xs font-bold shadow-sm">${lead.tag || 'Novo'}</span></td>
-                                        <td class="py-4 px-4 text-xs font-semibold text-apple-textMut">${formatDate(lead.proxRetorno) || '-'}</td>
+                                        <td class="py-4 px-4 font-medium text-xs text-apple-textMut">${lead.cidade || '-'}/${lead.uf || '-'}</td>
+                                        <td class="py-4 px-4">
+                                            <span class="px-3 py-1 bg-apple-bg border border-apple-border/50 text-apple-text rounded-full text-[10px] font-bold shadow-sm">${lead.tag || 'Novo'}</span>
+                                        </td>
                                         <td class="py-4 px-6 text-right rounded-r-2xl">
-                                            <select onchange="atualizarTag('${lead.dbId}', this.value)" class="text-xs border border-apple-border rounded-full px-3 py-1.5 outline-none bg-apple-bg font-semibold cursor-pointer hover:bg-gray-200 transition-colors appearance-none">
-                                                <option value="">Alterar Tag...</option>
-                                                <option value="Tentativa 1">Tentativa 1</option>
-                                                <option value="Tentativa 2">Tentativa 2</option>
-                                                <option value="Sem Resposta">Sem Resposta</option>
-                                                <option value="Interessado">Interessado</option>
-                                                <option value="Convertido">Convertido!</option>
-                                            </select>
+                                            <button onclick="abrirPerfil('${lead.dbId}')" class="text-xs border border-apple-border rounded-full px-4 py-1.5 outline-none bg-apple-bg font-semibold hover:bg-gray-200 transition-colors shadow-sm">
+                                                Ver Perfil
+                                            </button>
                                         </td>
                                     </tr>
                                 `).join('')}
@@ -1206,39 +1300,78 @@
         function renderBase(c) {
             document.getElementById('page-title').innerText = "Base de Clientes";
             const base = allLeads.filter(l => l.classe !== 'Carrinho' && l.classe !== 'Lead Frio');
+            
+            // Obter UFs únicas para o filtro
+            const ufs = [...new Set(base.map(l => l.uf).filter(Boolean))].sort();
 
             c.innerHTML = `
                 <div class="slide-up max-w-[1400px] mx-auto bg-apple-bg/30 border border-apple-border/30 rounded-[2rem] shadow-sm flex flex-col h-[calc(100vh-10rem)] overflow-hidden">
-                    <div class="p-6 border-b border-apple-border/30 flex gap-4 bg-white/50 backdrop-blur-md shrink-0">
-                        <div class="relative flex-1 max-w-sm">
+                    
+                    <!-- Filtros -->
+                    <div class="p-6 border-b border-apple-border/30 flex flex-wrap gap-4 bg-white/50 backdrop-blur-md shrink-0 items-center">
+                        <div class="relative flex-1 min-w-[200px] max-w-sm">
                             <i class="ph ph-magnifying-glass absolute left-4 top-3 text-apple-textMut text-lg"></i>
-                            <input type="text" id="filtro-base" onkeyup="filtrarBase()" placeholder="Procurar clientes..." class="w-full bg-white border border-apple-border rounded-full pl-11 pr-4 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-brand-400 transition-all shadow-sm">
+                            <input type="text" id="filtro-base-nome" onkeyup="filtrarBase()" placeholder="Procurar clientes..." class="w-full bg-white border border-apple-border rounded-full pl-11 pr-4 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-brand-400 transition-all shadow-sm">
                         </div>
-                        <select id="filtro-tipo" onchange="filtrarBase()" class="bg-white border border-apple-border rounded-full px-5 py-2.5 text-sm font-semibold outline-none cursor-pointer hover:bg-gray-50 transition-colors shadow-sm appearance-none">
-                            <option value="">Todos (Normal & VIP)</option><option value="Normal">Normal</option><option value="VIP">VIP</option>
+                        
+                        <select id="filtro-base-tipo" onchange="filtrarBase()" class="bg-white border border-apple-border rounded-full px-5 py-2.5 text-sm font-semibold outline-none cursor-pointer hover:bg-gray-50 transition-colors shadow-sm appearance-none">
+                            <option value="">Tipo (Todos)</option>
+                            <option value="Normal">Normal</option>
+                            <option value="VIP">VIP</option>
+                        </select>
+
+                        <select id="filtro-base-status" onchange="filtrarBase()" class="bg-white border border-apple-border rounded-full px-5 py-2.5 text-sm font-semibold outline-none cursor-pointer hover:bg-gray-50 transition-colors shadow-sm appearance-none">
+                            <option value="">Status (Todos)</option>
+                            <option value="Ativo">Ativo</option>
+                            <option value="Pós-Venda">Pós-Venda</option>
+                            <option value="Risco Inatividade">Risco Inatividade</option>
+                            <option value="Inativo">Inativo</option>
+                            <option value="Novo Lead">Novo Lead</option>
+                        </select>
+
+                        <select id="filtro-base-uf" onchange="filtrarBase()" class="bg-white border border-apple-border rounded-full px-5 py-2.5 text-sm font-semibold outline-none cursor-pointer hover:bg-gray-50 transition-colors shadow-sm appearance-none">
+                            <option value="">Estado (Todos)</option>
+                            ${ufs.map(u => `<option value="${u}">${u}</option>`).join('')}
                         </select>
                     </div>
+
                     <div class="overflow-y-auto flex-1 p-2">
                         <table class="w-full text-left text-sm border-separate border-spacing-y-2">
                             <thead class="text-apple-textMut text-xs uppercase tracking-wider font-semibold sticky top-0 bg-apple-bg/90 backdrop-blur-md z-10">
                                 <tr>
-                                    <th class="py-3 px-6">Cliente</th><th class="py-3 px-4">Telefone</th>
-                                    <th class="py-3 px-4">Categoria</th><th class="py-3 px-4">Status</th>
-                                    <th class="py-3 px-4">Última Compra</th><th class="py-3 px-6 text-right">Ação Rápida</th>
+                                    <th class="py-3 px-6">Cliente</th>
+                                    <th class="py-3 px-4">Telefone</th>
+                                    <th class="py-3 px-4">Cat. / UF</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4">Última Compra</th>
+                                    <th class="py-3 px-6 text-right">Ação</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${base.map(lead => `
-                                    <tr class="bg-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-2xl transition-all duration-300 hover:shadow-md group row-base" data-nome="${lead.nome.toLowerCase()}" data-tel="${lead.telefone || ''}" data-tipo="${lead.tipoCliente || 'Normal'}">
+                                    <tr class="bg-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-2xl transition-all duration-300 hover:shadow-md group row-base" 
+                                        data-nome="${lead.nome.toLowerCase()}" 
+                                        data-tel="${lead.telefone || ''}" 
+                                        data-tipo="${lead.tipoCliente || 'Normal'}"
+                                        data-status="${lead.classe}"
+                                        data-uf="${lead.uf || ''}">
+                                        
                                         <td class="py-4 px-6 font-bold text-apple-text rounded-l-2xl flex items-center gap-2">
                                             ${lead.nome} ${lead.tipoCliente === 'VIP' ? '<i class="ph-fill ph-star text-vip-500" title="VIP"></i>' : ''}
                                         </td>
                                         <td class="py-4 px-4 font-medium text-apple-textMut">${lead.telefone || '-'}</td>
-                                        <td class="py-4 px-4"><span class="text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full ${lead.tipoCliente === 'VIP' ? 'bg-vip-50 text-vip-700 border border-vip-200' : 'bg-apple-bg text-apple-text border border-apple-border'} shadow-sm">${lead.tipoCliente || 'Normal'}</span></td>
+                                        <td class="py-4 px-4">
+                                            <div class="flex flex-col gap-1 items-start">
+                                                <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${lead.tipoCliente === 'VIP' ? 'bg-vip-50 text-vip-700' : 'bg-apple-bg text-apple-text'} shadow-sm">${lead.tipoCliente || 'Normal'}</span>
+                                                ${lead.uf ? `<span class="text-[9px] font-bold text-apple-textMut">${lead.uf}</span>` : ''}
+                                            </div>
+                                        </td>
                                         <td class="py-4 px-4 text-xs font-bold ${getClasseColor(lead.classe)}">${lead.classe}</td>
                                         <td class="py-4 px-4 text-xs font-semibold text-apple-textMut">${formatDate(lead.dataUltimaCompra) || 'Nenhuma'}</td>
                                         <td class="py-4 px-6 text-right rounded-r-2xl">
-                                            <button onclick="registarCompra('${lead.dbId}')" class="text-xs bg-white text-brand-600 hover:bg-brand-500 hover:text-white px-4 py-2 rounded-full font-bold border border-brand-200 transition-all shadow-sm">Nova Compra</button>
+                                            <button onclick="abrirPerfil('${lead.dbId}')" class="text-xs bg-white text-brand-600 hover:bg-brand-500 hover:text-white px-4 py-2 rounded-full font-bold border border-brand-200 transition-all shadow-sm">
+                                                Ver Perfil
+                                            </button>
                                         </td>
                                     </tr>
                                 `).join('')}
@@ -1247,6 +1380,24 @@
                     </div>
                 </div>
             `;
+        }
+
+        window.filtrarBase = () => {
+            const txt = document.getElementById('filtro-base-nome').value.toLowerCase();
+            const tipo = document.getElementById('filtro-base-tipo').value;
+            const status = document.getElementById('filtro-base-status').value;
+            const uf = document.getElementById('filtro-base-uf').value;
+            
+            document.querySelectorAll('.row-base').forEach(row => {
+                const rTxt = row.getAttribute('data-nome') + row.getAttribute('data-tel');
+                
+                const matchTxt = !txt || rTxt.includes(txt);
+                const matchTipo = !tipo || row.getAttribute('data-tipo') === tipo;
+                const matchStatus = !status || row.getAttribute('data-status') === status;
+                const matchUf = !uf || row.getAttribute('data-uf') === uf;
+                
+                row.style.display = (matchTxt && matchTipo && matchStatus && matchUf) ? '' : 'none';
+            });
         }
 
         // --- BUSINESS ACTIONS ---
@@ -1285,34 +1436,177 @@
             }
         };
 
-        window.filtrarBase = () => {
-            const txt = document.getElementById('filtro-base').value.toLowerCase();
-            const tipo = document.getElementById('filtro-tipo').value;
-            document.querySelectorAll('.row-base').forEach(row => {
-                const rTxt = row.getAttribute('data-nome') + row.getAttribute('data-tel');
-                const rTipo = row.getAttribute('data-tipo');
-                row.style.display = (!txt || rTxt.includes(txt)) && (!tipo || rTipo === tipo) ? '' : 'none';
-            });
-        }
+        // --- MODAL DE PERFIL COMPLETO ---
+        let leadAtualParaMsg = null;
 
-        // --- IMPORT & CREATION ---
-        window.openImportModal = () => { document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('modal-import').classList.add('flex'); };
-        window.openNovoLeadModal = () => { document.getElementById('modal-novo-lead').classList.remove('hidden'); document.getElementById('modal-novo-lead').classList.add('flex'); };
-        window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); };
+        window.abrirPerfil = (dbId) => {
+            const lead = allLeads.find(l => l.dbId === dbId);
+            if(!lead) return;
+            
+            leadAtualParaMsg = lead;
 
-        window.salvarNovoLead = async () => {
-            const n = document.getElementById('fnome').value, t = document.getElementById('ftel').value;
-            const tipo = document.getElementById('ftipo').value, orig = document.getElementById('forigem').value;
-            if (!n || !t) { showToast("Nome e Telefone requeridos.", "warning"); return; }
+            // Preencher Cabeçalho
+            document.getElementById('perfil-nome').innerText = lead.nome;
+            document.getElementById('perfil-tipo-origem').innerText = `${lead.tipoCliente || 'Normal'} • ${lead.origem || 'Base de Dados'}`;
+            document.getElementById('perfil-avatar').innerText = lead.nome.substring(0,2).toUpperCase();
+            
+            // Preencher Contato Principal
+            document.getElementById('perfil-tel').innerText = lead.telefone || 'Não Registado';
+            document.getElementById('perfil-email').innerText = lead.email || 'Não Registado';
+            
+            let locStr = "";
+            if(lead.bairro) locStr += lead.bairro + ", ";
+            if(lead.cidade) locStr += lead.cidade;
+            if(lead.uf) locStr += " - " + lead.uf;
+            document.getElementById('perfil-loc').innerText = locStr || 'Localização não especificada';
 
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leads_v2', 'ld_' + Date.now()), {
-                nome: n, telefone: t, tipoCliente: tipo, origem: orig, dataEntrada: hoje, historico: []
-            });
-            showToast("Cliente registado com sucesso!");
-            closeModal('modal-novo-lead');
+            // Preencher Métricas CRM
+            document.getElementById('perfil-status-badge').innerHTML = `<span class="${getClasseColor(lead.classe)}">${lead.classe}</span>`;
+            document.getElementById('perfil-tag').innerText = lead.tag || 'Sem Tag Específica';
+            document.getElementById('perfil-ultima-compra').innerText = lead.dataUltimaCompra ? formatDate(lead.dataUltimaCompra) : 'Nenhuma compra registada';
+
+            // Preencher Dados da Empresa (se existirem)
+            const empCont = document.getElementById('perfil-empresa-core');
+            empCont.innerHTML = `
+                <div class="col-span-2 bg-apple-bg/50 p-3 rounded-xl border border-apple-border/30">
+                    <span class="block text-[10px] uppercase tracking-widest font-bold text-apple-textMut">CNPJ</span>
+                    <span class="text-sm font-bold text-apple-text">${lead.cnpj || 'Não Consta'}</span>
+                </div>
+                <div class="col-span-2 bg-apple-bg/50 p-3 rounded-xl border border-apple-border/30">
+                    <span class="block text-[10px] uppercase tracking-widest font-bold text-apple-textMut">Razão Social</span>
+                    <span class="text-sm font-bold text-apple-text truncate">${lead.nome}</span>
+                </div>
+            `;
+            
+            let extraStr = "";
+            if(lead.dadosExtras && lead.dadosExtras.length > 0) {
+                extraStr += lead.dadosExtras.join('\n') + '\n\n';
+            }
+            if(lead.socios && lead.socios.length > 0) {
+                extraStr += "SÓCIOS/ADMINISTRADORES:\n";
+                extraStr += lead.socios.join('\n');
+            }
+
+            document.getElementById('perfil-empresa-extras').innerText = extraStr.trim() || 'Nenhum dado empresarial adicional registado.';
+
+            // Preencher Sugestões de Mensagem baseadas no Status
+            const msgsCont = document.getElementById('perfil-msgs');
+            const nomeCurto = lead.nome.split(' ')[0];
+            let msgs = [];
+            
+            if(lead.classe === 'Carrinho') {
+                msgs = [
+                    `Olá ${nomeCurto}, tudo bem? Vi que deixou alguns itens no carrinho na nossa loja. Ficou alguma dúvida ou posso ajudar com algo?`,
+                    `Oi ${nomeCurto}! Ainda tem interesse nos relógios que separou? Conseguimos um desconto especial no frete hoje.`,
+                    `Olá ${nomeCurto}, seu carrinho na Relógio Store está salvo. Quer ajuda para finalizar a compra e garantir o estoque?`
+                ];
+            } else if(lead.classe === 'Pós-Venda' || lead.classe === 'Ativo') {
+                msgs = [
+                    `Olá ${nomeCurto}, tudo bem? Como estão as vendas dos últimos relógios que chegaram? Precisando de suporte, estou à disposição!`,
+                    `Oi ${nomeCurto}! Passando para mostrar os novos lançamentos que chegaram hoje na loja. Posso enviar o catálogo em PDF?`
+                ];
+            } else if(lead.classe === 'Inativo' || lead.classe === 'Risco Inatividade') {
+                msgs = [
+                    `Olá ${nomeCurto}, faz um tempo que não nos falamos! Chegaram novidades incríveis com margens ótimas, quer dar uma olhada?`,
+                    `Oi ${nomeCurto}, reparei que não repôs o seu estoque recentemente. Temos promoções exclusivas para si hoje, posso mostrar?`,
+                    `Olá ${nomeCurto}! Quer receber o catálogo atualizado com as tendências da Relógio Store para este mês?`
+                ];
+            } else if(lead.classe === 'Lead Frio') {
+                msgs = [
+                    `Olá ${nomeCurto}, somos da Relógio Store Atacadista. Fornecemos relógios com margem excelente de lucro. Gostaria de ver nosso catálogo sem compromisso?`,
+                    `Oi ${nomeCurto}! Vi que sua empresa atua no setor. Temos uma linha exclusiva de relógios no atacado. Posso apresentar rapidamente?`
+                ];
+            } else {
+                msgs = [
+                    `Olá ${nomeCurto}, tudo bem? Passando para apresentar as novidades da Relógio Store!`,
+                    `Oi ${nomeCurto}! Gostaria de receber nosso catálogo atualizado sem compromisso?`
+                ];
+            }
+
+            msgsCont.innerHTML = msgs.map(m => `
+                <div class="flex gap-2 p-3 bg-white rounded-xl border border-brand-200 shadow-sm hover:shadow-md transition-shadow">
+                    <p class="text-xs text-brand-900 font-medium flex-1 leading-relaxed">${m}</p>
+                    <button onclick="copiarTexto(this, \`${m}\`)" class="shrink-0 text-brand-600 hover:text-brand-800 p-1.5 bg-brand-50 rounded-lg h-fit transition-colors" title="Copiar Mensagem">
+                        <i class="ph ph-copy text-lg"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            // Abrir Modal
+            const m = document.getElementById('modal-perfil');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
         };
 
-        // --- LIMPEZA DE BASE DE DADOS ---
+        window.abrirWhatsAppPerfil = () => {
+            if(!leadAtualParaMsg || !leadAtualParaMsg.telefone) {
+                showToast("Telefone não registado para este cliente.", "error");
+                return;
+            }
+            const telLimpo = leadAtualParaMsg.telefone.replace(/\D/g, '');
+            window.open(`https://wa.me/${telLimpo}?text=Olá ${leadAtualParaMsg.nome.split(' ')[0]}, tudo bem?`, '_blank');
+        };
+
+        window.copiarTexto = (btn, txt) => {
+            const input = document.createElement('textarea');
+            input.value = txt;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            
+            const origHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="ph-fill ph-check-circle text-lg text-emerald-500"></i>';
+            setTimeout(() => {
+                btn.innerHTML = origHTML;
+            }, 1500);
+
+            showToast("Mensagem copiada para a área de transferência!", "success");
+        };
+
+        // --- GESTÃO DE PASTAS & LIMPEZA GERAL ---
+        function renderPastas(c) {
+            document.getElementById('page-title').innerText = "Gestão de Pastas";
+
+            c.innerHTML = `
+                <div class="slide-up max-w-[1400px] mx-auto space-y-8 pb-10">
+                    
+                    <!-- Header -->
+                    <div class="flex items-center justify-between flex-wrap gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-apple-bg rounded-full flex items-center justify-center shadow-sm border border-apple-border/30">
+                                <i class="ph ph-folder-open text-2xl text-apple-text"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-apple-text tracking-tight">Gestão do Sistema</h3>
+                                <p class="text-sm text-apple-textMut font-medium">Use a opção "Importar Dados" acima para adicionar ficheiros.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- BOTÃO RESET / LIMPEZA -->
+                        <button onclick="limparTodaBase()" class="bg-red-50 hover:bg-red-500 text-red-600 hover:text-white px-5 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 transition-all border border-red-200 hover:border-red-500 shadow-sm">
+                            <i class="ph ph-trash text-lg"></i> Limpar Todos os Contatos (Reset Total)
+                        </button>
+                    </div>
+
+                    <!-- Info Box -->
+                    <div class="bg-apple-bg/40 border border-apple-border/30 rounded-[1.5rem] p-6 flex items-start gap-4">
+                        <div class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-blue-500 shrink-0">
+                            <i class="ph ph-info text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-apple-text text-sm">Como funciona a Importação Inteligente?</h4>
+                            <ul class="text-xs text-apple-textMut font-medium mt-2 space-y-1.5">
+                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> Pode fazer o upload de Excel, CSV ou colar textos (como os do Econodata).</li>
+                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> Se o cliente já existir (mesmo telemóvel ou nome), ele não é duplicado, o perfil dele é atualizado com as informações novas.</li>
+                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> Dados extras, CNAE e Sócios são automaticamente agrupados e guardados.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         window.limparTodaBase = async () => {
             const confirmacao = confirm('⚠️ ATENÇÃO: Tem certeza absoluta que deseja APAGAR TODOS os contatos e leads da base? Esta ação é irreversível!');
             if (!confirmacao) return;
@@ -1359,9 +1653,13 @@
             }
         };
 
+
         // =========================================================================
-        // NOVO MOTOR DE PROCESSAMENTO DE CSV / TEXTO (LÓGICA BLINDADA DE DRAG E DROP)
+        // NOVO MOTOR DE PROCESSAMENTO DE CSV / TEXTO (LÓGICA BLINDADA E SCRAPER)
         // =========================================================================
+
+        window.openImportModal = () => { document.getElementById('modal-import').classList.remove('hidden'); document.getElementById('modal-import').classList.add('flex'); };
+        window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); };
 
         window.arquivoCSVSelecionado = null;
 
@@ -1385,7 +1683,7 @@
             document.getElementById('btn-processar-csv').disabled = true;
         };
 
-        window.processarArquivoCSV = () => {
+        window.processarArquivoCSV = async () => {
             const textoColado = document.getElementById('texto-csv').value;
 
             if (!window.arquivoCSVSelecionado && !textoColado.trim()) {
@@ -1401,466 +1699,317 @@
             loader.classList.remove('hidden');
             loaderText.innerText = "A processar dados...";
 
+            // 1. Scraper Text Detection (Verifica se é texto copiado de um site como o Econodata)
+            if (!window.arquivoCSVSelecionado && (textoColado.includes('👉') || /CNPJ:/i.test(textoColado) || /Razão Social:/i.test(textoColado))) {
+                const leadsScraped = parseLeadsScraperText(textoColado, layout, tipo);
+                await salvarLoteNoFirebase(leadsScraped, layout, tipo);
+                loader.classList.add('hidden');
+                return;
+            }
+
+            // 2. CSV / Excel Normal File Processing
             if (window.arquivoCSVSelecionado) {
-                // Usa a função universal que suporta CSV e Excel
-                parseFileToArray(window.arquivoCSVSelecionado, async (rows) => {
-                    await processarArrayPapaParse(rows, layout, tipo);
-                }, (errMsg) => {
-                    showToast(errMsg, 'error');
-                    loader.classList.add('hidden');
-                });
-            } else if (textoColado.trim()) {
-                // Processa o texto colado diretamente
-                if (!window.Papa) {
-                    showToast("PapaParse não carregado. Atualize a página.", "error");
-                    loader.classList.add('hidden');
-                    return;
+                const ext = window.arquivoCSVSelecionado.name.split('.').pop().toLowerCase();
+                const isExcel = (ext === 'xlsx' || ext === 'xls');
+
+                if (isExcel) {
+                    if (!window.XLSX) { showToast('Biblioteca SheetJS não carregada.', 'error'); loader.classList.add('hidden'); return; }
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = new Uint8Array(e.target.result);
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            const sheetName = workbook.SheetNames[0];
+                            const sheet = workbook.Sheets[sheetName];
+                            const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+                            const cleanRows = rows.map(row => row.map(cell => String(cell).trim().replace(/^['"]|['"]$/g, '')));
+                            processRowsToArrayOfObjects(cleanRows, layout, tipo).then(() => { loader.classList.add('hidden'); });
+                        } catch (err) {
+                            console.error('Erro Excel:', err); showToast('Falha ao ler Excel.', 'error'); loader.classList.add('hidden');
+                        }
+                    };
+                    reader.readAsArrayBuffer(window.arquivoCSVSelecionado);
+                } else {
+                    if (!window.Papa) { showToast('PapaParse não carregado.', 'error'); loader.classList.add('hidden'); return; }
+                    Papa.parse(window.arquivoCSVSelecionado, {
+                        header: false,
+                        skipEmptyLines: true,
+                        transform: (value) => value.trim().replace(/^['"]|['"]$/g, ''),
+                        complete: (results) => { processRowsToArrayOfObjects(results.data, layout, tipo).then(() => { loader.classList.add('hidden'); }); },
+                        error: (err) => { console.error("Erro PapaParse:", err); showToast("Falha ler CSV.", "error"); loader.classList.add('hidden'); }
+                    });
                 }
+            } else if (textoColado.trim()) {
+                // Colou um CSV em texto puro
                 Papa.parse(textoColado, {
                     header: false,
                     skipEmptyLines: true,
                     transform: (value) => value.trim().replace(/^['"]|['"]$/g, ''),
-                    complete: async (results) => {
-                        if (results.errors.length > 0) console.warn("Erros PapaParse:", results.errors);
-                        await processarArrayPapaParse(results.data, layout, tipo);
-                    },
-                    error: (err) => {
-                        console.error("Erro PapaParse:", err);
-                        showToast("Falha ao ler a estrutura dos dados.", "error");
-                        loader.classList.add('hidden');
-                    }
+                    complete: async (results) => { await processRowsToArrayOfObjects(results.data, layout, tipo); loader.classList.add('hidden'); },
+                    error: (err) => { console.error("Erro PapaParse:", err); showToast("Falha na estrutura colada.", "error"); loader.classList.add('hidden'); }
                 });
             }
         };
 
-        async function processarArrayPapaParse(linhas, layout, tipoBase) {
-            const loader = document.getElementById('loading-screen');
-            const loaderText = document.getElementById('global-loading-text');
-            loaderText.innerText = "A cruzar dados e gravar...";
-
-            try {
-                let countImported = 0;
-                let countDuplicates = 0;
-                let promisesBatch = [];
-
-                const telefonesExistentes = new Set(allLeads.map(l => l.telefone ? l.telefone.replace(/\D/g, '') : ''));
-                const telefonesNesteLote = new Set();
+        // --- SCRAPER PARSER (ECONODATA STYLE) ---
+        function parseLeadsScraperText(text, layoutOrigem, tipoBase) {
+            const leads = [];
+            const blocks = text.split(/\n\s*\n|---/); // Divide por parágrafos vazios ou dashes
+            
+            for(let b of blocks) {
+                const lines = b.split('\n');
+                let lead = { dadosExtras: [], socios: [], tipoCliente: tipoBase, origem: 'Comprado', tag: 'Novo' };
                 
-                const nomesExistentes = new Set(allLeads.map(l => l.nome ? l.nome.toLowerCase().trim() : ''));
-                const nomesNesteLote = new Set();
-
-                for (let i = 0; i < linhas.length; i++) {
-                    const cols = linhas[i];
-                    if (!cols || cols.length === 0) continue;
-
-                    let n = '', t = '', uf = '', origem = '', ultimaCompra = null, tag = 'Novo';
-
-                    if (layout === 'clientes') {
-                        // Verifica cabeçalho
-                        if (i === 0 && (String(cols[0]).toLowerCase().includes('código') || String(cols[1]).toLowerCase().includes('data'))) continue;
-
-                        n = cols[3] || '';
-                        t = cols[13] || cols[14] || '';
-                        uf = cols[9] || '';
-                        origem = 'Base Antiga';
-
-                        if (cols[15] && String(cols[15]).trim() !== '') {
-                            let dataStr = String(cols[15]).split(' ')[0];
-                            if (dataStr.includes('/')) {
-                                const parts = dataStr.split('/');
-                                if (parts.length === 3) ultimaCompra = `${parts[2]}-${parts[1]}-${parts[0]}`;
-                            } else if (dataStr.includes('-')) {
-                                ultimaCompra = dataStr;
-                            }
-                        }
-
-                    } else if (layout === 'leads') {
-                        // Pula cabeçalho se existir
-                        if (i === 0 && (String(cols[0]).toLowerCase().includes('cnpj') || String(cols[1]).toLowerCase().includes('cnpj'))) continue;
-
-                        n = (cols[3] && String(cols[3]).trim() !== '') ? cols[3] : ((cols[2] && String(cols[2]).trim() !== '') ? cols[2] : (cols[1] || ''));
-                        t = cols[9] || cols[10] || '';
-                        uf = cols[8] || '';
-                        origem = 'Comprado';
-
-                    } else if (layout === 'simples') {
-                        if (i === 0 && String(cols[0]).toLowerCase().includes('nome')) continue;
-                        n = cols[0] || '';
-                        t = cols[1] || '';
-                        origem = 'Importação Manual';
-                    }
-
-                    if (String(n).toLowerCase() === 'nome cliente') continue;
+                for(let l of lines) {
+                    let cl = l.replace(/👉/g, '').trim();
+                    if(!cl) continue;
                     
-                    // Fallback se não tiver nome em nenhuma coluna (ex: arquivo mal formatado)
-                    if (!n || n.trim() === '') {
-                        n = 'Registro sem nome';
-                    }
-
-                    let cleanPhone = t ? String(t).replace(/\D/g, '') : '';
-
-                    // Se não encontrou telefone nas colunas definidas, procura em toda a linha
-                    if (cleanPhone.length < 10) {
-                        const possiblePhoneCol = cols.find(c => {
-                            if (!c) return false;
-                            let strC = String(c);
-                            if (strC.includes('@') || strC.toLowerCase().includes('cep')) return false;
-                            const digits = strC.replace(/\D/g, '');
-                            return digits.length >= 10 && digits.length <= 15 && !strC.toLowerCase().includes('cnpj');
-                        });
-                        if (possiblePhoneCol) cleanPhone = String(possiblePhoneCol).replace(/\D/g, '');
-                    }
-                    
-                    // -- NOVA LÓGICA DE DEDUPLICAÇÃO --
-                    // Agora gravamos todos. Se não tem telemóvel, validamos duplicados pelo NOME
-                    let isDuplicate = false;
-                    const nomeKey = n.toLowerCase().trim();
-
-                    if (cleanPhone.length >= 10 && cleanPhone.length <= 15) {
-                        // Tem telemóvel, deduplica pelo telemóvel
-                        if (telefonesExistentes.has(cleanPhone) || telefonesNesteLote.has(cleanPhone)) {
-                            isDuplicate = true;
-                        }
-                    } else {
-                        // NÃO TEM telemóvel válido, deduplica pelo NOME
-                        if (nomesExistentes.has(nomeKey) || nomesNesteLote.has(nomeKey)) {
-                            isDuplicate = true;
-                        }
-                    }
-
-                    if (isDuplicate) {
-                        countDuplicates++;
-                    } else {
-                        // Marca como processado para evitar duplicação no mesmo lote
-                        if (cleanPhone.length >= 10 && cleanPhone.length <= 15) {
-                            telefonesNesteLote.add(cleanPhone);
-                        } else {
-                            nomesNesteLote.add(nomeKey);
-                        }
-
-                        const docId = 'imp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-
-                        promisesBatch.push(
-                            setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leads_v2', docId), {
-                                nome: n, telefone: cleanPhone, uf: uf, tipoCliente: tipoBase, origem: origem,
-                                dataEntrada: hoje, dataUltimaCompra: ultimaCompra, tag: tag, historico: [], status: 'Novo'
-                            })
-                        );
-                        countImported++;
-
-                        if (promisesBatch.length >= 100) {
-                            loaderText.innerText = `A guardar... (${countImported} gravados)`;
-                            await Promise.all(promisesBatch);
-                            promisesBatch = [];
-                        }
-                    }
-                }
-
-                if (promisesBatch.length > 0) {
-                    loaderText.innerText = `A finalizar... (${countImported} gravados)`;
-                    await Promise.all(promisesBatch);
-                }
-
-                showToast(`Sucesso! ${countImported} registros salvos. (${countDuplicates} duplicados ignorados)`, countImported > 0 ? 'success' : 'warning');
-
-                // Fecha modal apenas se está aberto
-                const modalImport = document.getElementById('modal-import');
-                if (modalImport && !modalImport.classList.contains('hidden')) {
-                    closeModal('modal-import');
-                    window.limparArquivo();
-                }
-
-                if (currentView === 'base' || currentView === 'comprados' || currentView === 'pastas') renderCurrentView();
-
-            } catch (error) {
-                console.error("Erro crítico de importação PapaParse:", error);
-                showToast("Erro ao processar as colunas.", "error");
-            } finally {
-                loader.classList.add('hidden');
-            }
-        }
-
-        // --- GESTÃO DE PASTAS VIEW ---
-        function renderPastas(c) {
-            document.getElementById('page-title').innerText = "Gestão de Pastas";
-
-            const folders = [
-                {
-                    key: 'normal',
-                    title: 'Clientes Normal',
-                    subtitle: 'Base de clientes da loja (Código, Nome, CPF, Telefone...)',
-                    icon: 'ph-users-three',
-                    gradient: 'from-brand-500 to-emerald-600',
-                    bgLight: 'bg-brand-50',
-                    borderLight: 'border-brand-200',
-                    textColor: 'text-brand-700',
-                    layout: 'clientes',
-                    tipo: 'Normal',
-                    count: allLeads.filter(l => l.tipoCliente !== 'VIP' && l.origem !== 'Comprado').length
-                },
-                {
-                    key: 'comprado',
-                    title: 'Leads Comprado',
-                    subtitle: 'Leads atacado B2B (CNPJ, Razão Social, Telefone...)',
-                    icon: 'ph-shopping-bag',
-                    gradient: 'from-amber-500 to-orange-600',
-                    bgLight: 'bg-amber-50',
-                    borderLight: 'border-amber-200',
-                    textColor: 'text-amber-700',
-                    layout: 'leads',
-                    tipo: 'Normal',
-                    count: allLeads.filter(l => l.origem === 'Comprado').length
-                },
-                {
-                    key: 'vip',
-                    title: 'Clientes VIP',
-                    subtitle: 'Base exclusiva de clientes VIP (Código, Nome, CPF, Telefone...)',
-                    icon: 'ph-crown',
-                    gradient: 'from-vip-500 to-purple-700',
-                    bgLight: 'bg-vip-50',
-                    borderLight: 'border-vip-200',
-                    textColor: 'text-vip-700',
-                    layout: 'clientes',
-                    tipo: 'VIP',
-                    count: allLeads.filter(l => l.tipoCliente === 'VIP').length
-                }
-            ];
-
-            c.innerHTML = `
-                <div class="slide-up max-w-[1400px] mx-auto space-y-8 pb-10">
-                    
-                    <!-- Header -->
-                    <div class="flex items-center justify-between flex-wrap gap-4">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-apple-bg rounded-full flex items-center justify-center shadow-sm border border-apple-border/30">
-                                <i class="ph ph-folder-open text-2xl text-apple-text"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold text-apple-text tracking-tight">Gestão de Pastas</h3>
-                                <p class="text-sm text-apple-textMut font-medium">Selecione o arquivo CSV de cada pasta para atualizar o CRM.</p>
-                            </div>
-                        </div>
+                    const match = cl.match(/^([^:]+):(.*)$/);
+                    if(match) {
+                        const key = match[1].trim().toLowerCase();
+                        const val = match[2].trim();
                         
-                        <!-- BOTÃO RESET / LIMPEZA -->
-                        <button onclick="limparTodaBase()" class="bg-red-50 hover:bg-red-500 text-red-600 hover:text-white px-5 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 transition-all border border-red-200 hover:border-red-500 shadow-sm">
-                            <i class="ph ph-trash text-lg"></i> Limpar Todos os Contatos
-                        </button>
-                    </div>
-
-                    <!-- Folder Cards -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        ${folders.map(f => `
-                            <div class="bg-white border border-apple-border/40 rounded-[2rem] shadow-sm overflow-hidden flex flex-col hover:shadow-apple-hover transition-all duration-300 group" id="folder-card-${f.key}">
-                                
-                                <!-- Card Header with gradient -->
-                                <div class="bg-gradient-to-br ${f.gradient} p-6 text-white relative overflow-hidden">
-                                    <div class="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
-                                    <div class="absolute -bottom-6 -left-6 w-20 h-20 bg-white/10 rounded-full blur-lg"></div>
-                                    <div class="relative z-10">
-                                        <div class="flex items-center justify-between mb-3">
-                                            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-md">
-                                                <i class="ph ${f.icon} text-xl"></i>
-                                            </div>
-                                            <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-md">${f.count} registros</span>
-                                        </div>
-                                        <h4 class="text-lg font-bold tracking-tight">${f.title}</h4>
-                                        <p class="text-xs text-white/70 mt-1 font-medium">${f.subtitle}</p>
-                                    </div>
-                                </div>
-
-                                <!-- Card Body -->
-                                <div class="p-6 flex-1 flex flex-col gap-4">
-                                    
-                                    <!-- Auto-detected config -->
-                                    <div class="bg-apple-bg/50 rounded-xl p-3 border border-apple-border/30">
-                                        <p class="text-[10px] font-bold text-apple-textMut uppercase tracking-wider mb-2">Configuração Automática</p>
-                                        <div class="flex gap-2">
-                                            <span class="text-[10px] font-bold px-2 py-1 bg-white rounded-lg border border-apple-border/30 text-apple-text">Layout: ${f.layout === 'clientes' ? 'Base Clientes' : 'Leads Atacado'}</span>
-                                            <span class="text-[10px] font-bold px-2 py-1 ${f.tipo === 'VIP' ? 'bg-vip-50 text-vip-700 border-vip-200' : 'bg-brand-50 text-brand-700 border-brand-200'} rounded-lg border">Tipo: ${f.tipo}</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- File Input Hidden -->
-                                    <input type="file" id="folder-file-${f.key}" class="hidden" accept=".csv,.txt,.xlsx,.xls" onchange="window.handleFolderFile('${f.key}', this.files[0])">
-
-                                    <!-- Drop Zone -->
-                                    <div id="folder-drop-${f.key}"
-                                         onclick="document.getElementById('folder-file-${f.key}').click()"
-                                         ondragover="event.preventDefault(); this.classList.add('border-brand-500', 'bg-brand-50');"
-                                         ondragleave="event.preventDefault(); this.classList.remove('border-brand-500', 'bg-brand-50');"
-                                         ondrop="event.preventDefault(); this.classList.remove('border-brand-500', 'bg-brand-50'); if(event.dataTransfer.files[0]) window.handleFolderFile('${f.key}', event.dataTransfer.files[0]);"
-                                         class="border-2 border-dashed border-apple-border hover:border-brand-500 hover:bg-brand-50/50 rounded-xl p-5 text-center cursor-pointer transition-all duration-300 bg-apple-bg/20 group/drop">
-                                        <div class="w-10 h-10 bg-apple-bg group-hover/drop:bg-white rounded-full flex items-center justify-center mx-auto mb-2 transition-colors">
-                                            <i class="ph ph-upload-simple text-lg text-apple-textMut group-hover/drop:text-brand-500 transition-colors"></i>
-                                        </div>
-                                        <p class="text-xs font-bold text-apple-text">Clique ou arraste o arquivo aqui</p>
-                                        <p class="text-[10px] text-apple-textMut mt-1 font-medium">Aceita .csv, .xlsx e .xls</p>
-                                    </div>
-
-                                    <!-- Selected File Display -->
-                                    <div id="folder-selected-${f.key}" class="hidden p-3 ${f.bgLight} rounded-xl border ${f.borderLight} items-center gap-2">
-                                        <i class="ph-fill ph-file-csv ${f.textColor} text-lg"></i>
-                                        <p id="folder-filename-${f.key}" class="text-xs ${f.textColor} font-bold truncate flex-1"></p>
-                                        <button onclick="window.clearFolderFile('${f.key}')" class="ml-auto ${f.textColor} hover:opacity-70 p-1 bg-white rounded-full shadow-sm"><i class="ph ph-x text-sm font-bold"></i></button>
-                                    </div>
-
-                                    <!-- Last Import Timestamp -->
-                                    <div id="folder-timestamp-${f.key}" class="${lastImportTimestamps[f.key] ? '' : 'hidden'} text-center">
-                                        <p class="text-[10px] text-apple-textMut font-medium">Última importação: <span class="font-bold text-apple-text">${lastImportTimestamps[f.key] || '-'}</span></p>
-                                    </div>
-
-                                    <!-- Import Button -->
-                                    <button onclick="window.importFromFolder('${f.key}')" id="folder-btn-${f.key}" 
-                                            class="w-full mt-auto bg-apple-text hover:bg-black text-white font-bold py-3 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-apple-text" disabled>
-                                        <i class="ph ph-database text-lg"></i> Importar e Salvar no Firebase
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-
-                    <!-- Info Box -->
-                    <div class="bg-apple-bg/40 border border-apple-border/30 rounded-[1.5rem] p-6 flex items-start gap-4">
-                        <div class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-blue-500 shrink-0">
-                            <i class="ph ph-info text-xl"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-apple-text text-sm">Como funciona?</h4>
-                            <ul class="text-xs text-apple-textMut font-medium mt-2 space-y-1.5">
-                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> NENHUM registo é descartado. Se faltar o telefone, usamos o nome para evitar duplicados.</li>
-                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> O layout (colunas) e tipo de cliente são detectados automaticamente</li>
-                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> Os dados são salvos diretamente no Firebase em tempo real</li>
-                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> Errou a pasta? Use o botão "Limpar Todos os Contatos" para começar do zero!</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // --- FOLDER IMPORT HANDLERS ---
-        window.handleFolderFile = (key, file) => {
-            if (!file) return;
-            folderFiles[key] = file;
-            document.getElementById(`folder-filename-${key}`).textContent = file.name;
-            document.getElementById(`folder-selected-${key}`).classList.remove('hidden');
-            document.getElementById(`folder-selected-${key}`).classList.add('flex');
-            document.getElementById(`folder-btn-${key}`).disabled = false;
-        };
-
-        window.clearFolderFile = (key) => {
-            folderFiles[key] = null;
-            document.getElementById(`folder-file-${key}`).value = '';
-            document.getElementById(`folder-selected-${key}`).classList.add('hidden');
-            document.getElementById(`folder-selected-${key}`).classList.remove('flex');
-            document.getElementById(`folder-btn-${key}`).disabled = true;
-        };
-
-        // --- FUNÇÃO UNIVERSAL DE PARSING (CSV + EXCEL) ---
-        function parseFileToArray(file, callback, errorCallback) {
-            const ext = file.name.split('.').pop().toLowerCase();
-            const isExcel = (ext === 'xlsx' || ext === 'xls');
-
-            if (isExcel) {
-                if (!window.XLSX) {
-                    errorCallback('Biblioteca SheetJS não carregada. Atualize a página.');
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        const sheetName = workbook.SheetNames[0];
-                        const sheet = workbook.Sheets[sheetName];
-                        // Converte para array de arrays (sem cabeçalho)
-                        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-                        // Limpa valores
-                        const cleanRows = rows.map(row => row.map(cell => String(cell).trim().replace(/^['"]|['"]$/g, '')));
-                        callback(cleanRows);
-                    } catch (err) {
-                        console.error('Erro ao ler Excel:', err);
-                        errorCallback('Falha ao ler o arquivo Excel.');
+                        if(key.includes('razão') || key.includes('nome')) lead.nome = val;
+                        else if(key.includes('cnpj')) lead.cnpj = val.replace(/\D/g, '');
+                        else if(key.includes('telefone') || key.includes('celular') || key.includes('whatsapp')) lead.telefone = val.replace(/\D/g, '');
+                        else if(key.includes('bairro')) lead.bairro = val;
+                        else if(key.includes('cidade') || key.includes('município')) lead.cidade = val;
+                        else if(key === 'uf' || key === 'estado') lead.uf = val;
+                        else if(key.includes('email') || key.includes('e-mail')) lead.email = val;
+                        else if(key.includes('sócio') || key.includes('administrador')) lead.socios.push(val);
+                        else lead.dadosExtras.push(`${match[1].trim()}: ${val}`);
+                    } else {
+                        // Linha sem dois pontos, guardamos como extra
+                        lead.dadosExtras.push(cl);
                     }
-                };
-                reader.onerror = () => errorCallback('Erro ao carregar o arquivo.');
-                reader.readAsArrayBuffer(file);
-            } else {
-                // CSV/TXT
-                if (!window.Papa) {
-                    errorCallback('Biblioteca PapaParse não carregada. Atualize a página.');
-                    return;
                 }
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    let text = e.target.result;
-                    if (text.startsWith('\uFEFF')) text = text.substring(1);
-                    Papa.parse(text, {
-                        header: false,
-                        skipEmptyLines: true,
-                        transform: (value) => value.trim().replace(/^['"]|['"]$/g, ''),
-                        complete: (results) => {
-                            if (results.errors.length > 0) console.warn('Erros PapaParse:', results.errors);
-                            callback(results.data);
-                        },
-                        error: (err) => {
-                            console.error('Erro PapaParse:', err);
-                            errorCallback('Falha ao ler a estrutura do CSV.');
-                        }
-                    });
-                };
-                reader.onerror = () => errorCallback('Erro ao carregar o arquivo.');
-                reader.readAsText(file, 'windows-1252');
+                
+                // Só adiciona se tiver pelo menos nome, cnpj ou telefone
+                if(lead.nome || lead.cnpj || lead.telefone) leads.push(lead);
             }
+            return leads;
         }
 
-        window.importFromFolder = (key) => {
-            const file = folderFiles[key];
-            if (!file) { showToast('Selecione um arquivo primeiro.', 'warning'); return; }
+        // --- ARRAY TO OBJECT PARSER (Mapeamento Estrito) ---
+        async function processRowsToArrayOfObjects(linhas, layout, tipoBase) {
+            const leadsToSave = [];
+            
+            for (let i = 0; i < linhas.length; i++) {
+                const cols = linhas[i]; 
+                if (!cols || cols.length === 0) continue;
+                
+                let lead = { tipoCliente: tipoBase, origem: 'Importação', dadosExtras: [], socios: [], tag: 'Novo' };
 
-            const configMap = {
-                normal: { layout: 'clientes', tipo: 'Normal' },
-                comprado: { layout: 'leads', tipo: 'Normal' },
-                vip: { layout: 'clientes', tipo: 'VIP' }
-            };
+                if (layout === 'leads') {
+                    // Mapeamento Estrito Atacado
+                    if (i === 0 && (String(cols[0]).toLowerCase().includes('cnpj'))) continue; // Ignora cabeçalho
+                    
+                    lead.cnpj = cols[0] ? String(cols[0]).replace(/\D/g, '') : '';
+                    lead.nome = cols[1] || ''; // Razão Social (Index 1)
+                    lead.bairro = cols[4] || '';
+                    lead.cidade = cols[5] || '';
+                    lead.uf = cols[6] || '';
+                    lead.telefone = cols[7] ? String(cols[7]).replace(/\D/g, '') : '';
+                    lead.email = cols[8] || '';
+                    lead.origem = 'Comprado';
+                    
+                    // Colunas 9 a 14: Dados empresariais
+                    for(let j=9; j<=14; j++) {
+                        if(cols[j] && String(cols[j]).trim() !== '') lead.dadosExtras.push(`Dado Adicional ${j}: ${cols[j]}`);
+                    }
+                    // Colunas 15 em diante: Sócios
+                    for(let j=15; j<cols.length; j++) {
+                        if(cols[j] && String(cols[j]).trim() !== '') lead.socios.push(cols[j]);
+                    }
+                    
+                } else if (layout === 'clientes') {
+                    if (i === 0 && (String(cols[0]).toLowerCase().includes('código') || String(cols[1]).toLowerCase().includes('data'))) continue;
+                    
+                    lead.nome = cols[3] || '';
+                    lead.telefone = (cols[13] || cols[14] || '').replace(/\D/g, '');
+                    lead.uf = cols[9] || '';
+                    lead.origem = 'Base Antiga';
+                    
+                    if (cols[15]) {
+                        let ds = String(cols[15]).split(' ')[0];
+                        if (ds.includes('/')) {
+                            const p = ds.split('/');
+                            if(p.length===3) lead.ultimaCompra = `${p[2]}-${p[1]}-${p[0]}`;
+                        }
+                        else if (ds.includes('-')) lead.ultimaCompra = ds;
+                    }
+                } else {
+                    if (i === 0 && String(cols[0]).toLowerCase().includes('nome')) continue;
+                    lead.nome = cols[0] || '';
+                    lead.telefone = (cols[1] || '').replace(/\D/g, '');
+                }
 
-            const config = configMap[key];
-            const loader = document.getElementById('loading-screen');
-            const loaderText = document.getElementById('global-loading-text');
-            const btn = document.getElementById(`folder-btn-${key}`);
+                // Fallback de telefone (se for arquivo caótico)
+                if(!lead.telefone || lead.telefone.length < 10) {
+                    const fallbackCol = cols.find(c => {
+                        if(!c) return false; 
+                        const s = String(c);
+                        if(s.includes('@') || s.toLowerCase().includes('cep')) return false;
+                        const d = s.replace(/\D/g, ''); 
+                        return d.length >= 10 && d.length <= 15 && !s.toLowerCase().includes('cnpj');
+                    });
+                    if(fallbackCol) lead.telefone = String(fallbackCol).replace(/\D/g, '');
+                }
+                
+                if (String(lead.nome).toLowerCase() === 'nome cliente') continue;
+                if (!lead.nome || lead.nome.trim() === '') lead.nome = 'Registro sem nome';
+                
+                leadsToSave.push(lead);
+            }
+            
+            await salvarLoteNoFirebase(leadsToSave, layout, tipoBase);
+        }
 
-            btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Processando...';
-            btn.disabled = true;
-            loader.classList.remove('hidden');
-            loaderText.innerText = `A processar: ${file.name}...`;
+        // --- SISTEMA DE DEDUPLICAÇÃO E UPDATE INTELIGENTE ---
+        async function salvarLoteNoFirebase(leadsArray, layout, tipoBase) {
+            let countImported = 0, countUpdated = 0;
+            let batch = writeBatch(db);
 
-            parseFileToArray(file, async (rows) => {
-                await processarArrayPapaParse(rows, config.layout, config.tipo);
+            // Mapa de clientes existentes para checagem rápida
+            const mapTel = new Map(allLeads.filter(l => l.telefone).map(l => [l.telefone.replace(/\D/g, ''), l]));
+            const mapNom = new Map(allLeads.filter(l => l.nome).map(l => [l.nome.toLowerCase().trim(), l]));
+            
+            const processadosLoteTel = new Set();
+            const processadosLoteNom = new Set();
 
-                // Update timestamp
-                const now = new Date();
-                lastImportTimestamps[key] = now.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            document.getElementById('global-loading-text').innerText = `A cruzar dados e gravar... (0 / ${leadsArray.length})`;
 
-                // Reset UI
-                window.clearFolderFile(key);
-                btn.innerHTML = '<i class="ph ph-database text-lg"></i> Importar e Salvar no Firebase';
+            for (let i = 0; i < leadsArray.length; i++) {
+                const lead = leadsArray[i];
+                const cleanPhone = lead.telefone || '';
+                const nomeKey = lead.nome.toLowerCase().trim();
 
-                if (currentView === 'pastas') renderPastas(document.getElementById('app-content'));
-            }, (errMsg) => {
-                showToast(errMsg, 'error');
-                loader.classList.add('hidden');
-                btn.innerHTML = '<i class="ph ph-database text-lg"></i> Importar e Salvar no Firebase';
-                btn.disabled = false;
+                // Pula duplicados estritos dentro do próprio lote a importar para não sobrepor updates na mesma transação
+                if(cleanPhone.length >= 10 && processadosLoteTel.has(cleanPhone)) continue;
+                if((!cleanPhone || cleanPhone.length < 10) && processadosLoteNom.has(nomeKey)) continue;
+
+                let existing = null;
+                if (cleanPhone.length >= 10) existing = mapTel.get(cleanPhone);
+                if (!existing && nomeKey && nomeKey !== 'registro sem nome') existing = mapNom.get(nomeKey);
+
+                if (existing) {
+                    // ATUALIZAÇÃO INTELIGENTE
+                    const upd = {};
+                    if(lead.email && !existing.email) upd.email = lead.email;
+                    if(lead.cnpj && !existing.cnpj) upd.cnpj = lead.cnpj;
+                    if(lead.bairro && !existing.bairro) upd.bairro = lead.bairro;
+                    if(lead.cidade && !existing.cidade) upd.cidade = lead.cidade;
+                    if(lead.uf && !existing.uf) upd.uf = lead.uf;
+                    if(lead.nome && existing.nome === 'Registro sem nome') upd.nome = lead.nome;
+                    
+                    if(lead.socios && lead.socios.length > 0) {
+                        upd.socios = [...new Set([...(existing.socios||[]), ...lead.socios])];
+                    }
+                    
+                    if(lead.dadosExtras && lead.dadosExtras.length > 0) {
+                        const mExtras = [...new Set([...(existing.dadosExtras||[]), ...lead.dadosExtras])];
+                        if(mExtras.length > (existing.dadosExtras||[]).length) upd.dadosExtras = mExtras;
+                    }
+
+                    if(Object.keys(upd).length > 0) {
+                        batch.update(doc(db, 'artifacts', appId, 'public', 'data', 'leads_v2', existing.dbId), upd);
+                        countUpdated++;
+                    }
+                } else {
+                    // INSERÇÃO NOVA
+                    const docId = 'imp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                    const newL = {
+                        nome: lead.nome, 
+                        telefone: cleanPhone, 
+                        uf: lead.uf || '', 
+                        cidade: lead.cidade || '', 
+                        bairro: lead.bairro || '',
+                        cnpj: lead.cnpj || '', 
+                        email: lead.email || '', 
+                        tipoCliente: lead.tipoCliente, 
+                        origem: lead.origem,
+                        dataEntrada: hoje, 
+                        dataUltimaCompra: lead.ultimaCompra || null, 
+                        tag: lead.tag, 
+                        status: 'Novo',
+                        dadosExtras: lead.dadosExtras || [], 
+                        socios: lead.socios || [], 
+                        historico: []
+                    };
+                    batch.set(doc(db, 'artifacts', appId, 'public', 'data', 'leads_v2', docId), newL);
+                    countImported++;
+                    
+                    if(cleanPhone.length >= 10) mapTel.set(cleanPhone, {dbId: docId, ...newL});
+                    else mapNom.set(nomeKey, {dbId: docId, ...newL});
+                }
+
+                if(cleanPhone.length >= 10) processadosLoteTel.add(cleanPhone); 
+                else processadosLoteNom.add(nomeKey);
+
+                if ((countImported + countUpdated) > 0 && (countImported + countUpdated) % 400 === 0) {
+                    await batch.commit(); 
+                    batch = writeBatch(db);
+                    document.getElementById('global-loading-text').innerText = `A gravar... (${countImported+countUpdated} processados)`;
+                }
+            }
+            
+            await batch.commit();
+
+            const mImport = document.getElementById('modal-import');
+            if(mImport && !mImport.classList.contains('hidden')) { 
+                closeModal('modal-import'); 
+                limparArquivo(); 
+            }
+            
+            showToast(`Feito! ${countImported} novos registos. ${countUpdated} perfis existentes atualizados.`, 'success');
+            
+            if (currentView === 'base' || currentView === 'comprados' || currentView === 'pastas') renderCurrentView();
+        }
+
+        window.openNovoLeadModal = () => { document.getElementById('modal-novo-lead').classList.remove('hidden'); document.getElementById('modal-novo-lead').classList.add('flex'); };
+        
+        window.salvarNovoLead = async () => {
+            const n = document.getElementById('fnome').value;
+            const t = document.getElementById('ftel').value;
+            const tipo = document.getElementById('ftipo').value;
+            const orig = document.getElementById('forigem').value;
+            
+            if (!n || !t) { showToast("Nome e Telefone requeridos.", "warning"); return; }
+            
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leads_v2', 'ld_' + Date.now()), { 
+                nome: n, 
+                telefone: t.replace(/\D/g, ''), 
+                tipoCliente: tipo, 
+                origem: orig, 
+                dataEntrada: hoje, 
+                historico: [], 
+                status: 'Novo' 
             });
+            
+            showToast("Cliente registado com sucesso!"); 
+            closeModal('modal-novo-lead');
         };
 
-        // --- UTILS ---
-        function formatDate(ds) { if (!ds) return ''; const [y, m, d] = ds.split('-'); return `${d}/${m}`; }
-        function getClasseColor(c) {
-            const map = { 'Novo Lead': 'text-amber-500', 'Ativo': 'text-emerald-500', 'Pós-Venda': 'text-brand-500', 'Risco Inatividade': 'text-orange-500', 'Inativo': 'text-apple-textMut' };
-            return map[c] || 'text-apple-textMut';
+        // --- Utils ---
+        function formatDate(ds) { 
+            if (!ds) return ''; 
+            const [y, m, d] = ds.split('-'); 
+            return `${d}/${m}`; 
         }
+        
+        function getClasseColor(c) { 
+            const map = { 
+                'Novo Lead': 'text-amber-500', 
+                'Ativo': 'text-emerald-500', 
+                'Pós-Venda': 'text-brand-500', 
+                'Risco Inatividade': 'text-orange-500', 
+                'Inativo': 'text-apple-textMut', 
+                'Carrinho': 'text-red-500', 
+                'Lead Frio': 'text-blue-500' 
+            }; 
+            return map[c] || 'text-apple-textMut'; 
+        }
+
     </script>
 </body>
-
 </html>
