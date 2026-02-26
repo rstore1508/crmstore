@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- PapaParse para importação CSV robusta -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <!-- SheetJS para importação de Excel (xlsx/xls) -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -29,8 +32,8 @@
                         },
                         vip: { 50: '#faf5ff', 100: '#f3e8ff', 500: '#a855f7', 600: '#9333ea', 900: '#581c87' }
                     },
-                    fontFamily: { 
-                        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'] 
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif']
                     },
                     boxShadow: {
                         'apple': '0 4px 24px rgba(0, 0, 0, 0.04)',
@@ -42,31 +45,102 @@
         }
     </script>
     <style>
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #D2D2D7; border-radius: 10px; border: 2px solid #FFFFFF; }
-        ::-webkit-scrollbar-thumb:hover { background: #86868B; }
-        
-        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .animate-spin-slow { animation: spin 1.5s linear infinite; }
-        
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #D2D2D7;
+            border-radius: 10px;
+            border: 2px solid #FFFFFF;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #86868B;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .animate-spin-slow {
+            animation: spin 1.5s linear infinite;
+        }
+
         /* Checkbox Apple Style */
         .apple-checkbox {
-            appearance: none; background-color: transparent; margin: 0; font: inherit; color: currentColor;
-            width: 1.4em; height: 1.4em; border: 1.5px solid #D2D2D7; border-radius: 50%;
-            display: grid; place-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            appearance: none;
+            background-color: transparent;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.4em;
+            height: 1.4em;
+            border: 1.5px solid #D2D2D7;
+            border-radius: 50%;
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
         .apple-checkbox::before {
-            content: ""; width: 0.7em; height: 0.7em; transform: scale(0); transition: 120ms transform ease-in-out;
-            box-shadow: inset 1em 1em white; background-color: white; transform-origin: center;
+            content: "";
+            width: 0.7em;
+            height: 0.7em;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em white;
+            background-color: white;
+            transform-origin: center;
             clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
         }
-        .apple-checkbox:checked { background-color: #059669; border-color: #059669; }
-        .apple-checkbox:checked::before { transform: scale(1); }
+
+        .apple-checkbox:checked {
+            background-color: #059669;
+            border-color: #059669;
+        }
+
+        .apple-checkbox:checked::before {
+            transform: scale(1);
+        }
 
         .glass-panel {
             background: rgba(255, 255, 255, 0.7);
@@ -74,52 +148,82 @@
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
-        
+
         .bg-mesh {
             background-color: #f9f9fb;
-            background-image: radial-gradient(at 40% 20%, hsla(28,100%,74%,0.15) 0px, transparent 50%),
-                              radial-gradient(at 80% 0%, hsla(189,100%,56%,0.15) 0px, transparent 50%),
-                              radial-gradient(at 0% 50%, hsla(355,100%,93%,0.15) 0px, transparent 50%);
+            background-image: radial-gradient(at 40% 20%, hsla(28, 100%, 74%, 0.15) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.15) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(355, 100%, 93%, 0.15) 0px, transparent 50%);
         }
 
         /* Notificações Toasts */
-        .toast-enter { transform: translateX(100%); opacity: 0; }
-        .toast-enter-active { transform: translateX(0); opacity: 1; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .toast-exit { transform: translateX(0); opacity: 1; }
-        .toast-exit-active { transform: translateX(100%); opacity: 0; transition: all 0.3s ease-in; }
+        .toast-enter {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        .toast-enter-active {
+            transform: translateX(0);
+            opacity: 1;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .toast-exit {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast-exit-active {
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease-in;
+        }
     </style>
 </head>
-<body class="bg-apple-bg text-apple-text font-sans h-screen flex overflow-hidden selection:bg-brand-100 selection:text-brand-900">
+
+<body
+    class="bg-apple-bg text-apple-text font-sans h-screen flex overflow-hidden selection:bg-brand-100 selection:text-brand-900">
 
     <!-- Container de Notificações -->
     <div id="toast-container" class="fixed top-6 right-6 z-[400] flex flex-col gap-3 pointer-events-none"></div>
 
     <!-- Loading Screen -->
-    <div id="loading-screen" class="fixed inset-0 bg-white/90 backdrop-blur-md z-[300] flex flex-col items-center justify-center text-apple-text transition-opacity duration-500">
+    <div id="loading-screen"
+        class="fixed inset-0 bg-white/90 backdrop-blur-md z-[300] flex flex-col items-center justify-center text-apple-text transition-opacity duration-500">
         <i class="ph ph-circle-notch text-5xl text-brand-500 animate-spin mb-6 font-light"></i>
         <h2 class="text-2xl font-semibold tracking-tight">A preparar o seu espaço...</h2>
         <p class="text-apple-textMut text-sm mt-2 font-medium" id="global-loading-text">Sincronizando dados...</p>
     </div>
 
     <!-- Login Screen -->
-    <div id="login-screen" class="fixed inset-0 bg-mesh z-[200] flex items-center justify-center text-apple-text hidden">
-        <div class="glass-panel p-10 rounded-[2.5rem] shadow-glass w-full max-w-sm flex flex-col items-center fade-in border border-white/60">
-            <img src="https://erp.grupotuguir.com.br/img/Logo_GrupoTuguir.png" alt="Grupo Tuguir" class="h-16 mb-8 object-contain drop-shadow-md">
-            
+    <div id="login-screen"
+        class="fixed inset-0 bg-mesh z-[200] flex items-center justify-center text-apple-text hidden">
+        <div
+            class="glass-panel p-10 rounded-[2.5rem] shadow-glass w-full max-w-sm flex flex-col items-center fade-in border border-white/60">
+            <img src="https://erp.grupotuguir.com.br/img/Logo_GrupoTuguir.png" alt="Grupo Tuguir"
+                class="h-16 mb-8 object-contain drop-shadow-md">
+
             <div class="w-full space-y-5">
                 <div class="space-y-1.5">
                     <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">E-mail</label>
-                    <input type="email" id="login-email" class="w-full bg-white/50 border border-apple-border rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-400 focus:bg-white outline-none transition-all duration-300" placeholder="Insira o seu e-mail">
+                    <input type="email" id="login-email"
+                        class="w-full bg-white/50 border border-apple-border rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-400 focus:bg-white outline-none transition-all duration-300"
+                        placeholder="Insira o seu e-mail">
                 </div>
                 <div class="space-y-1.5">
-                    <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Palavra-passe</label>
-                    <input type="password" id="login-password" class="w-full bg-white/50 border border-apple-border rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-400 focus:bg-white outline-none transition-all duration-300" placeholder="••••••••">
+                    <label
+                        class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Palavra-passe</label>
+                    <input type="password" id="login-password"
+                        class="w-full bg-white/50 border border-apple-border rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-400 focus:bg-white outline-none transition-all duration-300"
+                        placeholder="••••••••">
                 </div>
-                
-                <button onclick="fazerLogin()" id="btn-login" class="w-full bg-apple-text text-white font-medium py-3.5 rounded-2xl hover:bg-black hover:shadow-lg transition-all duration-300 mt-2">
+
+                <button onclick="fazerLogin()" id="btn-login"
+                    class="w-full bg-apple-text text-white font-medium py-3.5 rounded-2xl hover:bg-black hover:shadow-lg transition-all duration-300 mt-2">
                     Iniciar Sessão
                 </button>
-                <p id="login-error" class="text-red-500 text-sm text-center hidden font-medium bg-red-50/50 p-2 rounded-xl"></p>
+                <p id="login-error"
+                    class="text-red-500 text-sm text-center hidden font-medium bg-red-50/50 p-2 rounded-xl"></p>
             </div>
         </div>
     </div>
@@ -127,17 +231,20 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-transparent flex flex-col hidden md:flex h-full shrink-0 relative z-0">
         <div class="p-8 pb-4 flex items-center justify-center">
-            <img src="https://erp.grupotuguir.com.br/img/Logo_GrupoTuguir.png" alt="Grupo Tuguir" class="h-10 object-contain drop-shadow-sm hover:scale-105 transition-transform duration-300">
+            <img src="https://erp.grupotuguir.com.br/img/Logo_GrupoTuguir.png" alt="Grupo Tuguir"
+                class="h-10 object-contain drop-shadow-sm hover:scale-105 transition-transform duration-300">
         </div>
-        
+
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto" id="main-nav">
             <!-- Nav Items Generated by JS -->
         </nav>
-        
+
         <div class="p-6 mt-auto">
-            <div class="glass-panel rounded-2xl p-3 flex items-center justify-between border border-apple-border/50 shadow-sm">
+            <div
+                class="glass-panel rounded-2xl p-3 flex items-center justify-between border border-apple-border/50 shadow-sm">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-400 to-brand-600 flex items-center justify-center text-white font-bold shadow-sm">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-400 to-brand-600 flex items-center justify-center text-white font-bold shadow-sm">
                         AT
                     </div>
                     <div>
@@ -145,7 +252,9 @@
                         <p class="text-xs font-medium text-apple-textMut" id="clock-display">00:00</p>
                     </div>
                 </div>
-                <button onclick="fazerLogout()" class="text-apple-textMut hover:text-red-500 p-2 transition-colors rounded-full hover:bg-red-50" title="Sair">
+                <button onclick="fazerLogout()"
+                    class="text-apple-textMut hover:text-red-500 p-2 transition-colors rounded-full hover:bg-red-50"
+                    title="Sair">
                     <i class="ph ph-sign-out text-xl"></i>
                 </button>
             </div>
@@ -154,53 +263,71 @@
 
     <!-- Main Content Area (Floating White Panel) -->
     <main class="flex-1 flex flex-col h-full py-4 pr-4 pl-0 relative z-10">
-        <div class="bg-white h-full w-full rounded-[2rem] shadow-apple flex flex-col overflow-hidden border border-apple-border/30 relative">
-            
+        <div
+            class="bg-white h-full w-full rounded-[2rem] shadow-apple flex flex-col overflow-hidden border border-apple-border/30 relative">
+
             <!-- Header -->
-            <header class="h-20 flex items-center justify-between px-8 shrink-0 border-b border-apple-border/30 bg-white/80 backdrop-blur-md sticky top-0 z-20">
+            <header
+                class="h-20 flex items-center justify-between px-8 shrink-0 border-b border-apple-border/30 bg-white/80 backdrop-blur-md sticky top-0 z-20">
                 <h2 id="page-title" class="text-2xl font-bold text-apple-text tracking-tight">Visão Geral</h2>
                 <div class="flex items-center gap-3" id="global-actions">
-                    <button onclick="openImportModal()" class="bg-apple-bg hover:bg-gray-200 text-apple-text px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-colors">
+                    <button onclick="openImportModal()"
+                        class="bg-apple-bg hover:bg-gray-200 text-apple-text px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-colors">
                         <i class="ph ph-upload-simple text-lg"></i> Importar Dados
                     </button>
-                    <button onclick="openNovoLeadModal()" class="bg-apple-text hover:bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-all shadow-sm hover:shadow-md">
+                    <button onclick="openNovoLeadModal()"
+                        class="bg-apple-text hover:bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-all shadow-sm hover:shadow-md">
                         <i class="ph ph-plus-bold text-lg"></i> Novo Registo
                     </button>
                 </div>
             </header>
-            
+
             <!-- Dynamic Content -->
             <div id="app-content" class="flex-1 overflow-y-auto p-8 relative scroll-smooth bg-white"></div>
-            
+
         </div>
     </main>
 
     <!-- Modals -->
     <!-- Modal Novo Lead -->
-    <div id="modal-novo-lead" class="fixed inset-0 bg-black/20 backdrop-blur-md hidden items-center justify-center z-50 transition-opacity">
-        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl m-4 overflow-hidden slide-up border border-white/50">
-            <div class="px-8 py-6 border-b border-apple-border/30 flex justify-between items-center bg-white/80 backdrop-blur-sm">
+    <div id="modal-novo-lead"
+        class="fixed inset-0 bg-black/20 backdrop-blur-md hidden items-center justify-center z-50 transition-opacity">
+        <div
+            class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl m-4 overflow-hidden slide-up border border-white/50">
+            <div
+                class="px-8 py-6 border-b border-apple-border/30 flex justify-between items-center bg-white/80 backdrop-blur-sm">
                 <h3 class="font-bold text-xl text-apple-text tracking-tight">Registar Contacto</h3>
-                <button onclick="closeModal('modal-novo-lead')" class="bg-apple-bg hover:bg-gray-200 p-2 rounded-full transition-colors text-apple-textMut"><i class="ph ph-x text-lg"></i></button>
+                <button onclick="closeModal('modal-novo-lead')"
+                    class="bg-apple-bg hover:bg-gray-200 p-2 rounded-full transition-colors text-apple-textMut"><i
+                        class="ph ph-x text-lg"></i></button>
             </div>
             <div class="p-8 grid grid-cols-2 gap-6 bg-white">
                 <div class="col-span-2 sm:col-span-1">
-                    <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Nome / Empresa *</label>
-                    <input type="text" id="fnome" class="w-full bg-apple-bg border-none rounded-2xl px-4 py-3 mt-1.5 text-sm focus:ring-2 focus:ring-brand-400 outline-none transition-all">
+                    <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Nome / Empresa
+                        *</label>
+                    <input type="text" id="fnome"
+                        class="w-full bg-apple-bg border-none rounded-2xl px-4 py-3 mt-1.5 text-sm focus:ring-2 focus:ring-brand-400 outline-none transition-all">
                 </div>
                 <div class="col-span-2 sm:col-span-1">
-                    <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Telefone *</label>
-                    <input type="text" id="ftel" class="w-full bg-apple-bg border-none rounded-2xl px-4 py-3 mt-1.5 text-sm focus:ring-2 focus:ring-brand-400 outline-none transition-all">
+                    <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Telefone
+                        *</label>
+                    <input type="text" id="ftel"
+                        class="w-full bg-apple-bg border-none rounded-2xl px-4 py-3 mt-1.5 text-sm focus:ring-2 focus:ring-brand-400 outline-none transition-all">
                 </div>
                 <div class="col-span-2 sm:col-span-1">
-                    <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Tipo de Cliente</label>
-                    <select id="ftipo" class="w-full bg-apple-bg border-none rounded-2xl px-4 py-3 mt-1.5 text-sm focus:ring-2 focus:ring-brand-400 outline-none transition-all appearance-none cursor-pointer">
-                        <option value="Normal">Normal</option><option value="VIP">VIP</option>
+                    <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Tipo de
+                        Cliente</label>
+                    <select id="ftipo"
+                        class="w-full bg-apple-bg border-none rounded-2xl px-4 py-3 mt-1.5 text-sm focus:ring-2 focus:ring-brand-400 outline-none transition-all appearance-none cursor-pointer">
+                        <option value="Normal">Normal</option>
+                        <option value="VIP">VIP</option>
                     </select>
                 </div>
                 <div class="col-span-2 sm:col-span-1">
-                    <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Origem / Categoria</label>
-                    <select id="forigem" class="w-full bg-apple-bg border-none rounded-2xl px-4 py-3 mt-1.5 text-sm focus:ring-2 focus:ring-brand-400 outline-none transition-all appearance-none cursor-pointer">
+                    <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Origem /
+                        Categoria</label>
+                    <select id="forigem"
+                        class="w-full bg-apple-bg border-none rounded-2xl px-4 py-3 mt-1.5 text-sm focus:ring-2 focus:ring-brand-400 outline-none transition-all appearance-none cursor-pointer">
                         <option value="Novo Contato">Novo Contato (Orgânico)</option>
                         <option value="Comprado">Lead Comprado</option>
                         <option value="Carrinho Abandonado">Carrinho Abandonado</option>
@@ -208,79 +335,119 @@
                 </div>
             </div>
             <div class="px-8 py-6 border-t border-apple-border/30 bg-apple-bg/50 flex justify-end gap-3">
-                <button onclick="closeModal('modal-novo-lead')" class="px-6 py-2.5 bg-white text-apple-text font-semibold rounded-full border border-apple-border hover:bg-gray-50 transition-colors">Cancelar</button>
-                <button onclick="salvarNovoLead()" class="px-6 py-2.5 bg-apple-text text-white font-semibold rounded-full hover:bg-black transition-all shadow-sm">Guardar Registo</button>
+                <button onclick="closeModal('modal-novo-lead')"
+                    class="px-6 py-2.5 bg-white text-apple-text font-semibold rounded-full border border-apple-border hover:bg-gray-50 transition-colors">Cancelar</button>
+                <button onclick="salvarNovoLead()"
+                    class="px-6 py-2.5 bg-apple-text text-white font-semibold rounded-full hover:bg-black transition-all shadow-sm">Guardar
+                    Registo</button>
             </div>
         </div>
     </div>
 
     <!-- Modal Importação -->
-    <div id="modal-import" class="fixed inset-0 bg-black/20 backdrop-blur-md hidden items-center justify-center z-50 transition-opacity">
-        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl m-4 overflow-hidden slide-up border border-white/50 flex flex-col max-h-[90vh]">
-            <div class="px-8 py-6 border-b border-apple-border/30 flex justify-between items-center bg-white/80 backdrop-blur-sm shrink-0">
+    <div id="modal-import"
+        class="fixed inset-0 bg-black/20 backdrop-blur-md hidden items-center justify-center z-50 transition-opacity">
+        <div
+            class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl m-4 overflow-hidden slide-up border border-white/50 flex flex-col max-h-[90vh]">
+            <div
+                class="px-8 py-6 border-b border-apple-border/30 flex justify-between items-center bg-white/80 backdrop-blur-sm shrink-0">
                 <h3 class="font-bold text-xl text-apple-text tracking-tight">Importar Dados ao Sistema</h3>
-                <button onclick="closeModal('modal-import')" class="bg-apple-bg hover:bg-gray-200 p-2 rounded-full transition-colors text-apple-textMut"><i class="ph ph-x text-lg"></i></button>
+                <button onclick="closeModal('modal-import')"
+                    class="bg-apple-bg hover:bg-gray-200 p-2 rounded-full transition-colors text-apple-textMut"><i
+                        class="ph ph-x text-lg"></i></button>
             </div>
-            
+
             <div class="p-8 overflow-y-auto bg-white flex-1">
-                
+
                 <!-- IMPORTAR ARQUIVO COM PAPAPARSE -->
                 <div class="bg-apple-bg/30 border border-apple-border/50 rounded-2xl p-6">
-                    <h4 class="font-bold text-apple-text text-lg flex items-center gap-2 mb-2"><i class="ph ph-file-csv text-brand-500"></i> Importar Arquivo (Excel/CSV)</h4>
-                    <p class="text-sm text-apple-textMut mb-6 font-medium">Selecione o formato dos dados e adicione o seu arquivo. O sistema ignora duplicados automaticamente.</p>
-                    
+                    <h4 class="font-bold text-apple-text text-lg flex items-center gap-2 mb-2"><i
+                            class="ph ph-file-csv text-brand-500"></i> Importar Arquivo (Excel/CSV)</h4>
+                    <p class="text-sm text-apple-textMut mb-6 font-medium">Selecione o formato dos dados e adicione o
+                        seu arquivo. O sistema ignora duplicados automaticamente.</p>
+
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div class="col-span-2 md:col-span-1">
-                            <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Layout do Arquivo</label>
-                            <select id="colar-layout" class="w-full bg-white border border-apple-border rounded-xl px-4 py-3 mt-1.5 text-sm outline-none transition-all cursor-pointer font-medium text-apple-text focus:ring-2 focus:ring-brand-400">
+                            <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Layout
+                                do Arquivo</label>
+                            <select id="colar-layout"
+                                class="w-full bg-white border border-apple-border rounded-xl px-4 py-3 mt-1.5 text-sm outline-none transition-all cursor-pointer font-medium text-apple-text focus:ring-2 focus:ring-brand-400">
                                 <option value="clientes">Base de Clientes (Código, Nome...)</option>
                                 <option value="leads">Leads Atacado (CNPJ, Fantasia, Bairro...)</option>
                                 <option value="simples">Lista Simples (Nome, Telefone)</option>
                             </select>
                         </div>
                         <div class="col-span-2 md:col-span-1">
-                            <label class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Classificar como</label>
-                            <select id="colar-tipo" class="w-full bg-white border border-apple-border rounded-xl px-4 py-3 mt-1.5 text-sm outline-none transition-all cursor-pointer font-medium text-apple-text focus:ring-2 focus:ring-brand-400">
+                            <label
+                                class="text-xs font-semibold text-apple-textMut uppercase tracking-wider pl-1">Classificar
+                                como</label>
+                            <select id="colar-tipo"
+                                class="w-full bg-white border border-apple-border rounded-xl px-4 py-3 mt-1.5 text-sm outline-none transition-all cursor-pointer font-medium text-apple-text focus:ring-2 focus:ring-brand-400">
                                 <option value="Normal">Normal</option>
                                 <option value="VIP">VIP</option>
                             </select>
                         </div>
                     </div>
-                    
+
                     <!-- INPUT ESCONDIDO FORA DA ZONA DE CLIQUE (Fim do Bug do Loop) -->
-                    <input type="file" id="csv-file-input" class="hidden" accept=".csv, .txt" onchange="window.handleFileSelect(this.files[0])">
-                    
+                    <input type="file" id="csv-file-input" class="hidden" accept=".csv,.txt,.xlsx,.xls"
+                        onchange="window.handleFileSelect(this.files[0])">
+
                     <!-- Drag and Drop BLINDADO com Eventos Inline -->
-                    <div id="drop-zone" 
-                         onclick="document.getElementById('csv-file-input').click()" 
-                         ondragover="event.preventDefault(); this.classList.add('border-brand-500', 'bg-brand-50');" 
-                         ondragleave="event.preventDefault(); this.classList.remove('border-brand-500', 'bg-brand-50');" 
-                         ondrop="event.preventDefault(); this.classList.remove('border-brand-500', 'bg-brand-50'); if(event.dataTransfer.files[0]) window.handleFileSelect(event.dataTransfer.files[0]);"
-                         class="border-2 border-dashed border-apple-border hover:border-brand-500 hover:bg-brand-50 rounded-[1.5rem] p-6 text-center cursor-pointer transition-all duration-300 bg-white group relative mb-4">
-                        
-                        <div class="w-12 h-12 bg-apple-bg group-hover:bg-white rounded-full flex items-center justify-center mx-auto mb-2 transition-colors pointer-events-none">
-                            <i class="ph ph-upload-simple text-xl text-apple-textMut group-hover:text-brand-500 transition-colors"></i>
+                    <div id="drop-zone" onclick="document.getElementById('csv-file-input').click()"
+                        ondragover="event.preventDefault(); this.classList.add('border-brand-500', 'bg-brand-50');"
+                        ondragleave="event.preventDefault(); this.classList.remove('border-brand-500', 'bg-brand-50');"
+                        ondrop="event.preventDefault(); this.classList.remove('border-brand-500', 'bg-brand-50'); if(event.dataTransfer.files[0]) window.handleFileSelect(event.dataTransfer.files[0]);"
+                        class="border-2 border-dashed border-apple-border hover:border-brand-500 hover:bg-brand-50 rounded-[1.5rem] p-6 text-center cursor-pointer transition-all duration-300 bg-white group relative mb-4">
+
+                        <div
+                            class="w-12 h-12 bg-apple-bg group-hover:bg-white rounded-full flex items-center justify-center mx-auto mb-2 transition-colors pointer-events-none">
+                            <i
+                                class="ph ph-upload-simple text-xl text-apple-textMut group-hover:text-brand-500 transition-colors"></i>
                         </div>
-                        <p class="text-sm font-bold text-apple-text pointer-events-none">Clique ou arraste o arquivo .csv aqui</p>
-                        <p class="text-[10px] text-brand-500 mt-1 font-bold pointer-events-none bg-brand-50 inline-block px-2 py-1 rounded-full">(Fora daqui funciona perfeitamente)</p>
+                        <p class="text-sm font-bold text-apple-text pointer-events-none">Clique ou arraste o arquivo
+                            .csv / .xlsx aqui</p>
+                        <p
+                            class="text-[10px] text-brand-500 mt-1 font-bold pointer-events-none bg-brand-50 inline-block px-2 py-1 rounded-full">
+                            Suporta CSV, TXT e Excel</p>
                     </div>
 
-                    <div id="file-name-container" class="mt-2 mb-4 hidden p-3 bg-brand-50 rounded-xl border border-brand-100 items-center justify-center gap-2">
+                    <div id="file-name-container"
+                        class="mt-2 mb-4 hidden p-3 bg-brand-50 rounded-xl border border-brand-100 items-center justify-center gap-2">
                         <i class="ph-fill ph-file-csv text-brand-500 text-lg"></i>
                         <p id="file-name" class="text-xs text-brand-700 font-bold truncate max-w-[200px]"></p>
-                        <button onclick="window.limparArquivo()" class="ml-auto text-brand-500 hover:text-brand-700 p-1 bg-white rounded-full shadow-sm"><i class="ph ph-x text-sm font-bold"></i></button>
+                        <button onclick="window.limparArquivo()"
+                            class="ml-auto text-brand-500 hover:text-brand-700 p-1 bg-white rounded-full shadow-sm"><i
+                                class="ph ph-x text-sm font-bold"></i></button>
                     </div>
 
                     <div class="flex items-center gap-4 mb-4">
                         <div class="h-px bg-apple-border flex-1"></div>
-                        <span class="text-[10px] font-bold text-apple-textMut uppercase tracking-widest">OU COLE OS DADOS (TESTE AQUI)</span>
+                        <span class="text-[10px] font-bold text-apple-textMut uppercase tracking-widest">OU COLE OS
+                            DADOS (TESTE AQUI)</span>
                         <div class="h-px bg-apple-border flex-1"></div>
                     </div>
 
-                    <textarea id="texto-csv" oninput="document.getElementById('btn-processar-csv').disabled = this.value.trim().length === 0" placeholder="Copie do Excel e cole todo o texto aqui..." class="w-full h-32 bg-apple-bg/50 border border-apple-border/50 rounded-xl p-4 text-sm font-mono outline-none focus:ring-2 focus:ring-brand-400 transition-all resize-none shadow-inner"></textarea>
-                    
-                    <button onclick="processarArquivoCSV()" id="btn-processar-csv" class="w-full mt-6 bg-brand-600 hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-600" disabled>
+                    <textarea id="texto-csv"
+                        oninput="document.getElementById('btn-processar-csv').disabled = this.value.trim().length === 0"
+                        placeholder="Copie do Excel e cole todo o texto aqui..."
+                        class="w-full h-32 bg-apple-bg/50 border border-apple-border/50 rounded-xl p-4 text-sm font-mono outline-none focus:ring-2 focus:ring-brand-400 transition-all resize-none shadow-inner"></textarea>
+
+                    <button onclick="processarArquivoCSV()" id="btn-processar-csv"
+                        class="w-full mt-6 bg-brand-600 hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-600"
+                        disabled>
                         <i class="ph ph-check-circle text-lg"></i> Iniciar Importação
+                    </button>
+
+                    <div class="flex items-center gap-4 mt-6 mb-4">
+                        <div class="h-px bg-apple-border flex-1"></div>
+                        <span class="text-[10px] font-bold text-apple-textMut uppercase tracking-widest">OU IMPORTE POR
+                            PASTA</span>
+                        <div class="h-px bg-apple-border flex-1"></div>
+                    </div>
+                    <button onclick="closeModal('modal-import'); navigate('pastas');"
+                        class="w-full bg-apple-text hover:bg-black text-white font-bold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">
+                        <i class="ph ph-folder-open text-lg"></i> Ir para Gestão de Pastas
                     </button>
                 </div>
 
@@ -315,6 +482,10 @@
         let currentView = 'dashboard';
         const hoje = new Date().toISOString().split('T')[0];
 
+        // State - Gestão de Pastas
+        let lastImportTimestamps = { normal: null, vip: null, comprado: null };
+        let folderFiles = { normal: null, vip: null, comprado: null };
+
         // Global State - Catálogo
         let catalogProducts = [];
         let catalogFiltered = [];
@@ -328,11 +499,11 @@
         window.showToast = (message, type = 'success') => {
             const container = document.getElementById('toast-container');
             if (!container) return;
-            
+
             const toast = document.createElement('div');
             let bgClass = "bg-apple-text";
             let icon = "ph-check-circle";
-            
+
             if (type === 'error') { bgClass = "bg-red-500"; icon = "ph-warning-circle"; }
             if (type === 'info') { bgClass = "bg-brand-500"; icon = "ph-info"; }
             if (type === 'warning') { bgClass = "bg-amber-500"; icon = "ph-warning"; }
@@ -357,17 +528,17 @@
         // --- RELÓGIO CLOCK ---
         setInterval(() => {
             const now = new Date();
-            document.getElementById('clock-display').innerText = now.toLocaleTimeString('pt-PT', {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('clock-display').innerText = now.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
         }, 1000);
 
         // --- AUTH ---
         window.fazerLogin = async () => {
             const e = document.getElementById('login-email').value, p = document.getElementById('login-password').value, err = document.getElementById('login-error');
             const btn = document.getElementById('btn-login');
-            if(!e||!p) return err.innerText = "Por favor, preencha os dados.", err.classList.remove('hidden');
-            
+            if (!e || !p) return err.innerText = "Por favor, preencha os dados.", err.classList.remove('hidden');
+
             btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg inline-block"></i>';
-            try { await signInWithEmailAndPassword(auth, e, p); } 
+            try { await signInWithEmailAndPassword(auth, e, p); }
             catch (error) { err.innerText = "Credenciais inválidas.", err.classList.remove('hidden'); btn.innerText = 'Iniciar Sessão'; }
         };
         window.fazerLogout = () => signOut(auth);
@@ -390,14 +561,14 @@
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'leads_v2'), (snapshot) => {
                 allLeads = snapshot.docs.map(d => ({ dbId: d.id, ...d.data() }));
                 allLeads = allLeads.map(lead => ({ ...lead, classe: classificarCliente(lead) }));
-                
+
                 document.getElementById('loading-screen').classList.add('hidden');
                 renderNav();
                 if (currentView !== 'catalogo') renderCurrentView();
             });
 
             onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'checklists_v2', hoje), (docSnap) => {
-                if(docSnap.exists() && docSnap.data().tasks) {
+                if (docSnap.exists() && docSnap.data().tasks) {
                     rotinaTasks = docSnap.data().tasks;
                 } else {
                     rotinaTasks = [
@@ -411,7 +582,7 @@
                         { id: 't8', title: '16:45 - 17:00 | Fecho: Atualizar Etiquetas (CRM)', done: false, doneAt: null }
                     ];
                 }
-                if(currentView === 'dashboard') renderDashboard(document.getElementById('app-content'));
+                if (currentView === 'dashboard') renderDashboard(document.getElementById('app-content'));
             });
         }
 
@@ -429,7 +600,7 @@
             if (dataCompra && diffCompra > 30 && diffCompra <= 90) return 'Risco Inatividade';
             if (dataCompra && diffCompra > 90) return 'Inativo';
             if (diffCadastro <= 7 && !dataCompra) return 'Novo Lead';
-            
+
             return 'Prospect';
         }
 
@@ -437,22 +608,23 @@
         const views = [
             { id: 'dashboard', icon: 'ph-squares-four', label: 'Dashboard' },
             { id: 'catalogo', icon: 'ph-package', label: 'Catálogo & Estoque' },
-            { id: 'carrinhos', icon: 'ph-shopping-cart', label: 'Carrinhos', badge: () => allLeads.filter(l => l.classe==='Carrinho' && l.status!=='Convertido').length },
+            { id: 'carrinhos', icon: 'ph-shopping-cart', label: 'Carrinhos', badge: () => allLeads.filter(l => l.classe === 'Carrinho' && l.status !== 'Convertido').length },
             { id: 'comprados', icon: 'ph-users', label: 'Leads Comprados' },
+            { id: 'pastas', icon: 'ph-folder-open', label: 'Gestão de Pastas' },
             { id: 'base', icon: 'ph-database', label: 'Base de Clientes' }
         ];
 
-        window.navigate = (viewId) => { 
-            currentView = viewId; 
-            renderNav(); 
-            
-            if(currentView === 'catalogo') {
+        window.navigate = (viewId) => {
+            currentView = viewId;
+            renderNav();
+
+            if (currentView === 'catalogo') {
                 document.getElementById('global-actions').style.display = 'none';
             } else {
                 document.getElementById('global-actions').style.display = 'flex';
             }
 
-            renderCurrentView(); 
+            renderCurrentView();
         };
 
         function renderNav() {
@@ -470,11 +642,12 @@
 
         function renderCurrentView() {
             const c = document.getElementById('app-content');
-            if(currentView === 'dashboard') renderDashboard(c);
-            if(currentView === 'catalogo') renderCatalogo(c);
-            if(currentView === 'carrinhos') renderCarrinhos(c);
-            if(currentView === 'comprados') renderComprados(c);
-            if(currentView === 'base') renderBase(c);
+            if (currentView === 'dashboard') renderDashboard(c);
+            if (currentView === 'catalogo') renderCatalogo(c);
+            if (currentView === 'carrinhos') renderCarrinhos(c);
+            if (currentView === 'comprados') renderComprados(c);
+            if (currentView === 'pastas') renderPastas(c);
+            if (currentView === 'base') renderBase(c);
         }
 
         // --- VIEWS RENDERERS ---
@@ -556,11 +729,11 @@
                                 </div>
                                 <div class="p-3 flex-1 overflow-y-auto space-y-1.5 bg-white">
                                     ${rotinaTasks.map(t => {
-                                        const parts = t.title.split('|');
-                                        const timeHTML = parts.length > 1 ? `<span class="font-bold text-brand-600 mr-1">${parts[0].trim()}</span> <span class="text-apple-border mx-0.5">|</span> ` : '';
-                                        const titleHTML = parts.length > 1 ? parts[1].trim() : t.title;
-                                        
-                                        return `
+                const parts = t.title.split('|');
+                const timeHTML = parts.length > 1 ? `<span class="font-bold text-brand-600 mr-1">${parts[0].trim()}</span> <span class="text-apple-border mx-0.5">|</span> ` : '';
+                const titleHTML = parts.length > 1 ? parts[1].trim() : t.title;
+
+                return `
                                         <div class="group flex items-center justify-between p-3 bg-apple-bg/30 rounded-xl hover:bg-apple-bg transition-colors border border-transparent hover:border-apple-border/30 cursor-pointer" onclick="document.getElementById('${t.id}').click()">
                                             <label class="flex items-center gap-3 cursor-pointer flex-1 min-w-0" onclick="event.stopPropagation()">
                                                 <input type="checkbox" id="${t.id}" class="apple-checkbox shrink-0" ${t.done ? 'checked' : ''} onchange="toggleTaskDone('${t.id}', this.checked)">
@@ -571,7 +744,7 @@
                                             ${t.done && t.doneAt ? `<span class="shrink-0 bg-brand-50 text-brand-700 text-[10px] font-bold px-2 py-1 rounded-full border border-brand-100 fade-in flex items-center gap-1">${t.doneAt}</span>` : ''}
                                         </div>
                                         `;
-                                    }).join('')}
+            }).join('')}
                                 </div>
                             </div>
 
@@ -632,14 +805,14 @@
 
             // State chart logic
             const ufs = {};
-            allLeads.forEach(l => { if(l.uf) { ufs[l.uf] = (ufs[l.uf]||0)+1; }});
-            const sortedUfs = Object.entries(ufs).sort((a,b)=>b[1]-a[1]).slice(0,8);
+            allLeads.forEach(l => { if (l.uf) { ufs[l.uf] = (ufs[l.uf] || 0) + 1; } });
+            const sortedUfs = Object.entries(ufs).sort((a, b) => b[1] - a[1]).slice(0, 8);
             const maxVal = sortedUfs[0]?.[1] || 1;
-            
+
             document.getElementById('chart-estados').innerHTML = sortedUfs.map(([uf, count]) => `
                 <div class="group">
                     <div class="flex justify-between text-sm mb-2"><span class="font-bold text-apple-text">${uf}</span><span class="text-apple-textMut font-medium">${count}</span></div>
-                    <div class="w-full bg-apple-border/40 rounded-full h-2.5 overflow-hidden"><div class="bg-gradient-to-r from-brand-400 to-brand-600 h-full rounded-full transition-all duration-1000 ease-out group-hover:opacity-80" style="width: ${(count/maxVal)*100}%"></div></div>
+                    <div class="w-full bg-apple-border/40 rounded-full h-2.5 overflow-hidden"><div class="bg-gradient-to-r from-brand-400 to-brand-600 h-full rounded-full transition-all duration-1000 ease-out group-hover:opacity-80" style="width: ${(count / maxVal) * 100}%"></div></div>
                 </div>
             `).join('') || '<p class="text-sm text-apple-textMut col-span-4 py-4 font-medium">Sem dados regionais suficientes recolhidos no sistema.</p>';
         }
@@ -648,9 +821,9 @@
             const index = rotinaTasks.findIndex(t => t.id === taskId);
             if (index > -1) {
                 rotinaTasks[index].done = isDone;
-                rotinaTasks[index].doneAt = isDone ? new Date().toLocaleTimeString('pt-PT', {hour: '2-digit', minute:'2-digit'}) : null;
-                
-                if(currentView === 'dashboard') renderDashboard(document.getElementById('app-content'));
+                rotinaTasks[index].doneAt = isDone ? new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }) : null;
+
+                if (currentView === 'dashboard') renderDashboard(document.getElementById('app-content'));
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'checklists_v2', hoje), { tasks: rotinaTasks }, { merge: true });
             }
         };
@@ -664,7 +837,7 @@
         window.filterCatalog = () => {
             catSearch = document.getElementById('cat-search') ? document.getElementById('cat-search').value.toLowerCase() : "";
             catalogFiltered = catalogProducts.filter(p => {
-                const matchSearch = catSearch ? (p.name.toLowerCase().includes(catSearch) || (p.reference||"").toLowerCase().includes(catSearch)) : true;
+                const matchSearch = catSearch ? (p.name.toLowerCase().includes(catSearch) || (p.reference || "").toLowerCase().includes(catSearch)) : true;
                 return matchSearch;
             });
             renderCatalogGrid();
@@ -711,22 +884,22 @@
                 let limit = 50;
                 let allFetched = [];
 
-                while(hasMore) {
+                while (hasMore) {
                     const loadingText = document.getElementById('loading-text');
-                    if(loadingText) loadingText.innerText = `A transferir catálogo... (${allFetched.length} produtos)`;
+                    if (loadingText) loadingText.innerText = `A transferir catálogo... (${allFetched.length} produtos)`;
 
                     const response = await fetch(`${API_CATALOG}/products?limit=${limit}&page=${currentPage}`);
-                    if(!response.ok) throw new Error("Erro API");
-                    
+                    if (!response.ok) throw new Error("Erro API");
+
                     const data = await response.json();
-                    
-                    if(data.Products && Array.isArray(data.Products)) {
+
+                    if (data.Products && Array.isArray(data.Products)) {
                         const pageProducts = data.Products.map(item => item.Product);
                         allFetched = [...allFetched, ...pageProducts];
-                        
+
                         const totalRecords = parseInt(data.paging?.total || 0);
-                        
-                        if(pageProducts.length < limit || (totalRecords > 0 && allFetched.length >= totalRecords)) {
+
+                        if (pageProducts.length < limit || (totalRecords > 0 && allFetched.length >= totalRecords)) {
                             hasMore = false;
                         } else {
                             currentPage++;
@@ -741,12 +914,12 @@
                 // Mock se API falhar
                 const brandsList = ["Skmei", "Tuguir", "Onix", "Weide"];
                 catalogProducts = [];
-                for(let i=1; i<=60; i++) {
+                for (let i = 1; i <= 60; i++) {
                     const b = brandsList[i % brandsList.length];
-                    const outStock = i % 8 === 0; 
+                    const outStock = i % 8 === 0;
                     catalogProducts.push({
                         id: i, name: `Relógio ${b} Luxo Executivo ${i}`, price: (80 + i).toFixed(2),
-                        reference: `${b.substring(0,3).toUpperCase()}-${i}`, brand: b,
+                        reference: `${b.substring(0, 3).toUpperCase()}-${i}`, brand: b,
                         ProductImage: [{ http: `https://via.placeholder.com/300x300?text=${b}` }],
                         stock: outStock ? "0" : "15", available: outStock ? "0" : "1"
                     });
@@ -759,7 +932,7 @@
 
         function renderCatalogGrid() {
             const grid = document.getElementById('catalog-grid');
-            if(!grid) return;
+            if (!grid) return;
 
             if (catalogFiltered.length === 0) {
                 grid.innerHTML = `<div class="flex flex-col items-center justify-center py-20 text-apple-textMut"><i class="ph ph-package-x text-5xl mb-3 opacity-50"></i><p class="font-semibold">Nenhum produto encontrado.</p></div>`;
@@ -767,14 +940,14 @@
             }
 
             let html = `<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">`;
-            
+
             catalogFiltered.forEach(p => {
                 const isTuguir = (p.brand || "").toLowerCase() === 'tuguir';
                 const isLocked = isTuguir && !hasCnpj;
-                
+
                 const isAvailable = p.available == 1;
                 const stockQty = Number(p.stock || 0);
-                
+
                 let badgeHTML = '';
                 if (isAvailable) {
                     if (stockQty <= 0) {
@@ -819,12 +992,12 @@
         }
 
         window.generateCatalogPdf = async () => {
-            if(isGeneratingPdf) return;
-            if(!window.jspdf) { showToast("Biblioteca PDF não carregada.", "error"); return; }
+            if (isGeneratingPdf) return;
+            if (!window.jspdf) { showToast("Biblioteca PDF não carregada.", "error"); return; }
 
             const items = catalogFiltered.filter(p => p.available == 1);
-            
-            if(items.length === 0) {
+
+            if (items.length === 0) {
                 showToast("Não há produtos em estoque com o filtro atual.", "warning"); return;
             }
 
@@ -835,17 +1008,17 @@
             try {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('p', 'mm', 'a4');
-                const pageWidth = doc.internal.pageSize.getWidth(); 
-                const pageHeight = doc.internal.pageSize.getHeight(); 
-                
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+
                 const margin = 10;
                 const cols = 4; // 4 colunas no PDF
                 const gap = 4;
-                const cardWidth = (pageWidth - (margin * 2) - (gap * (cols - 1))) / cols; 
-                const cardHeight = 65; 
-                
+                const cardWidth = (pageWidth - (margin * 2) - (gap * (cols - 1))) / cols;
+                const cardHeight = 65;
+
                 let x = margin;
-                let y = 35; 
+                let y = 35;
                 let col = 0;
 
                 // Header PDF
@@ -854,16 +1027,16 @@
                 doc.setTextColor(255, 255, 255);
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(16);
-                doc.text("CATÁLOGO DE PRODUTOS", 15, 12); 
+                doc.text("CATÁLOGO DE PRODUTOS", 15, 12);
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(9);
                 doc.text("Apenas Itens Disponíveis em Estoque (Sem Preços)", 15, 18);
                 doc.setFontSize(8);
-                doc.text(new Date().toLocaleDateString('pt-BR'), pageWidth - 15, 15, {align: 'right'});
+                doc.text(new Date().toLocaleDateString('pt-BR'), pageWidth - 15, 15, { align: 'right' });
 
-                for(let i=0; i<items.length; i++) {
+                for (let i = 0; i < items.length; i++) {
                     const p = items[i];
-                    
+
                     if (y + cardHeight > pageHeight - 10) {
                         doc.addPage();
                         y = 15; x = margin; col = 0;
@@ -887,18 +1060,18 @@
                         doc.setTextColor(150, 150, 155);
                         doc.setFont("helvetica", "bold");
                         doc.setFontSize(7);
-                        doc.text("EXCLUSIVO", imgX + imgSize/2, imgY + imgSize/2 - 2, { align: 'center' });
-                        doc.text("CNPJ", imgX + imgSize/2, imgY + imgSize/2 + 3, { align: 'center' });
+                        doc.text("EXCLUSIVO", imgX + imgSize / 2, imgY + imgSize / 2 - 2, { align: 'center' });
+                        doc.text("CNPJ", imgX + imgSize / 2, imgY + imgSize / 2 + 3, { align: 'center' });
                     } else {
                         // Imagem real
                         let imgUrl = p.ProductImage?.[0]?.https || p.ProductImage?.[0]?.http;
-                        if(imgUrl) {
+                        if (imgUrl) {
                             imgUrl = imgUrl.replace('http://', 'https://');
                             const imgData = await getBase64Image(imgUrl);
-                            if(imgData) {
+                            if (imgData) {
                                 try {
                                     doc.addImage(imgData, 'JPEG', imgX, imgY, imgSize, imgSize);
-                                } catch(e){}
+                                } catch (e) { }
                             }
                         }
                     }
@@ -908,19 +1081,19 @@
                     doc.setFontSize(6);
                     doc.setTextColor(134, 134, 139); // TextMut
                     doc.text(isLocked ? "MARCA RESERVADA" : (p.brand || "MARCA").toUpperCase(), x + 3, textY);
-                    
-                    doc.text(`REF: ${p.reference || '-'}`, x + cardWidth - 3, textY, {align: 'right'});
+
+                    doc.text(`REF: ${p.reference || '-'}`, x + cardWidth - 3, textY, { align: 'right' });
 
                     doc.setFont("helvetica", "bold");
                     doc.setFontSize(7);
                     doc.setTextColor(29, 29, 31);
-                    
+
                     const nameTxt = isLocked ? "Produto indisponível para o seu tipo de cadastro." : (p.name || "");
                     const splitTitle = doc.splitTextToSize(nameTxt, cardWidth - 6);
                     doc.text(splitTitle.slice(0, 2), x + 3, textY + 4);
 
                     col++;
-                    if (col >= cols) { col = 0; x = margin; y += cardHeight + gap; } 
+                    if (col >= cols) { col = 0; x = margin; y += cardHeight + gap; }
                     else { x += cardWidth + gap; }
                 }
 
@@ -943,14 +1116,14 @@
                     const id = setTimeout(() => controller.abort(), 4000);
                     const res = await fetch(prefix + url, { signal: controller.signal });
                     clearTimeout(id);
-                    if(!res.ok) continue;
+                    if (!res.ok) continue;
                     const blob = await res.blob();
                     return await new Promise((resolve) => {
                         const reader = new FileReader();
                         reader.onloadend = () => resolve(reader.result);
                         reader.readAsDataURL(blob);
                     });
-                } catch(e) { continue; }
+                } catch (e) { continue; }
             }
             return null;
         }
@@ -959,7 +1132,7 @@
         function renderCarrinhos(c) {
             document.getElementById('page-title').innerText = "Carrinhos Abandonados";
             const carrinhos = allLeads.filter(l => l.classe === 'Carrinho');
-            
+
             c.innerHTML = `
                 <div class="slide-up max-w-[1400px] mx-auto space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -993,7 +1166,7 @@
         function renderComprados(c) {
             document.getElementById('page-title').innerText = "Leads Comprados (Frio)";
             const comprados = allLeads.filter(l => l.classe === 'Lead Frio');
-            
+
             c.innerHTML = `
                 <div class="slide-up max-w-[1400px] mx-auto bg-apple-bg/30 border border-apple-border/30 rounded-[2rem] shadow-sm overflow-hidden">
                     <div class="p-6 border-b border-apple-border/30 bg-white/50 backdrop-blur-md flex justify-between items-center">
@@ -1033,7 +1206,7 @@
         function renderBase(c) {
             document.getElementById('page-title').innerText = "Base de Clientes";
             const base = allLeads.filter(l => l.classe !== 'Carrinho' && l.classe !== 'Lead Frio');
-            
+
             c.innerHTML = `
                 <div class="slide-up max-w-[1400px] mx-auto bg-apple-bg/30 border border-apple-border/30 rounded-[2rem] shadow-sm flex flex-col h-[calc(100vh-10rem)] overflow-hidden">
                     <div class="p-6 border-b border-apple-border/30 flex gap-4 bg-white/50 backdrop-blur-md shrink-0">
@@ -1056,12 +1229,12 @@
                             </thead>
                             <tbody>
                                 ${base.map(lead => `
-                                    <tr class="bg-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-2xl transition-all duration-300 hover:shadow-md group row-base" data-nome="${lead.nome.toLowerCase()}" data-tel="${lead.telefone}" data-tipo="${lead.tipoCliente||'Normal'}">
+                                    <tr class="bg-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-2xl transition-all duration-300 hover:shadow-md group row-base" data-nome="${lead.nome.toLowerCase()}" data-tel="${lead.telefone}" data-tipo="${lead.tipoCliente || 'Normal'}">
                                         <td class="py-4 px-6 font-bold text-apple-text rounded-l-2xl flex items-center gap-2">
-                                            ${lead.nome} ${lead.tipoCliente==='VIP'?'<i class="ph-fill ph-star text-vip-500" title="VIP"></i>':''}
+                                            ${lead.nome} ${lead.tipoCliente === 'VIP' ? '<i class="ph-fill ph-star text-vip-500" title="VIP"></i>' : ''}
                                         </td>
                                         <td class="py-4 px-4 font-medium text-apple-textMut">${lead.telefone}</td>
-                                        <td class="py-4 px-4"><span class="text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full ${lead.tipoCliente==='VIP'?'bg-vip-50 text-vip-700 border border-vip-200':'bg-apple-bg text-apple-text border border-apple-border'} shadow-sm">${lead.tipoCliente||'Normal'}</span></td>
+                                        <td class="py-4 px-4"><span class="text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full ${lead.tipoCliente === 'VIP' ? 'bg-vip-50 text-vip-700 border border-vip-200' : 'bg-apple-bg text-apple-text border border-apple-border'} shadow-sm">${lead.tipoCliente || 'Normal'}</span></td>
                                         <td class="py-4 px-4 text-xs font-bold ${getClasseColor(lead.classe)}">${lead.classe}</td>
                                         <td class="py-4 px-4 text-xs font-semibold text-apple-textMut">${formatDate(lead.dataUltimaCompra) || 'Nenhuma'}</td>
                                         <td class="py-4 px-6 text-right rounded-r-2xl">
@@ -1083,28 +1256,28 @@
             let addDays = tent === 1 ? 2 : (tent === 2 ? 3 : 5);
             let d = new Date(); d.setDate(d.getDate() + addDays);
             let nextD = d.toISOString().split('T')[0];
-            let novoHist = [...(lead.historico||[]), { data: hoje, acao: `Enviada Mensagem ${tent}`, tag: 'Atualizado' }];
-            
+            let novoHist = [...(lead.historico || []), { data: hoje, acao: `Enviada Mensagem ${tent}`, tag: 'Atualizado' }];
+
             await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leads_v2', dbId), {
                 tentativas: tent, proxRetorno: nextD, historico: novoHist
             });
-            window.open(`https://wa.me/${lead.telefone.replace(/\D/g,'')}?text=Olá ${lead.nome.split(' ')[0]}, vi que deixou itens no carrinho! Posso ajudar?`, '_blank');
+            window.open(`https://wa.me/${lead.telefone.replace(/\D/g, '')}?text=Olá ${lead.nome.split(' ')[0]}, vi que deixou itens no carrinho! Posso ajudar?`, '_blank');
         };
 
         window.atualizarTag = async (dbId, tag) => {
-            if(!tag) return;
+            if (!tag) return;
             const lead = allLeads.find(l => l.dbId === dbId);
             let d = new Date(); d.setDate(d.getDate() + 2);
             let nextD = tag === 'Convertido' ? '' : d.toISOString().split('T')[0];
-            let novoHist = [...(lead.historico||[]), { data: hoje, acao: `Mudança de Tag`, tag: tag }];
-            
+            let novoHist = [...(lead.historico || []), { data: hoje, acao: `Mudança de Tag`, tag: tag }];
+
             await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leads_v2', dbId), {
                 tag: tag, proxRetorno: nextD, historico: novoHist, status: tag === 'Convertido' ? 'Convertido' : lead.status
             });
         };
 
         window.registarCompra = async (dbId) => {
-            if(confirm('Registar nova compra para este cliente hoje? Isto irá atualizar o status para Pós-Venda.')) {
+            if (confirm('Registar nova compra para este cliente hoje? Isto irá atualizar o status para Pós-Venda.')) {
                 await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leads_v2', dbId), {
                     dataUltimaCompra: hoje, proxRetorno: hoje
                 });
@@ -1130,9 +1303,9 @@
         window.salvarNovoLead = async () => {
             const n = document.getElementById('fnome').value, t = document.getElementById('ftel').value;
             const tipo = document.getElementById('ftipo').value, orig = document.getElementById('forigem').value;
-            if(!n || !t) { showToast("Nome e Telefone requeridos.", "warning"); return; }
-            
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leads_v2', 'ld_'+Date.now()), {
+            if (!n || !t) { showToast("Nome e Telefone requeridos.", "warning"); return; }
+
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leads_v2', 'ld_' + Date.now()), {
                 nome: n, telefone: t, tipoCliente: tipo, origem: orig, dataEntrada: hoje, historico: []
             });
             showToast("Cliente registado com sucesso!");
@@ -1173,11 +1346,6 @@
                 return;
             }
 
-            if (!window.Papa) {
-                showToast("Biblioteca PapaParse não carregada. Atualize a página.", "error");
-                return;
-            }
-
             const layout = document.getElementById('colar-layout').value;
             const tipo = document.getElementById('colar-tipo').value;
             const loader = document.getElementById('loading-screen');
@@ -1186,33 +1354,35 @@
             loader.classList.remove('hidden');
             loaderText.innerText = "A processar dados...";
 
-            // Função de configuração do PapaParse comum para ambos os métodos
-            const papaConfig = {
-                header: false,
-                skipEmptyLines: true,
-                transform: (value) => value.trim().replace(/^['"]|['"]$/g, ''),
-                complete: async (results) => {
-                    if (results.errors.length > 0) console.warn("Erros PapaParse:", results.errors);
-                    await processarArrayPapaParse(results.data, layout, tipo);
-                },
-                error: (err) => { 
-                    console.error("Erro PapaParse:", err); 
-                    showToast("Falha ao ler a estrutura dos dados.", "error"); 
-                    loader.classList.add('hidden');
-                }
-            };
-
             if (window.arquivoCSVSelecionado) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    let text = e.target.result;
-                    if (text.startsWith('\uFEFF')) text = text.substring(1);
-                    Papa.parse(text, papaConfig);
-                };
-                reader.readAsText(window.arquivoCSVSelecionado, 'windows-1252');
-            } else {
-                // Processa o texto colado diretamente (ideal para o Canvas / iFrame)
-                Papa.parse(textoColado, papaConfig);
+                // Usa a função universal que suporta CSV e Excel
+                parseFileToArray(window.arquivoCSVSelecionado, async (rows) => {
+                    await processarArrayPapaParse(rows, layout, tipo);
+                }, (errMsg) => {
+                    showToast(errMsg, 'error');
+                    loader.classList.add('hidden');
+                });
+            } else if (textoColado.trim()) {
+                // Processa o texto colado diretamente
+                if (!window.Papa) {
+                    showToast("PapaParse não carregado. Atualize a página.", "error");
+                    loader.classList.add('hidden');
+                    return;
+                }
+                Papa.parse(textoColado, {
+                    header: false,
+                    skipEmptyLines: true,
+                    transform: (value) => value.trim().replace(/^['"]|['"]$/g, ''),
+                    complete: async (results) => {
+                        if (results.errors.length > 0) console.warn("Erros PapaParse:", results.errors);
+                        await processarArrayPapaParse(results.data, layout, tipo);
+                    },
+                    error: (err) => {
+                        console.error("Erro PapaParse:", err);
+                        showToast("Falha ao ler a estrutura dos dados.", "error");
+                        loader.classList.add('hidden');
+                    }
+                });
             }
         };
 
@@ -1226,41 +1396,45 @@
                 let countDuplicates = 0;
                 let countInvalid = 0;
                 let promisesBatch = [];
-                
-                const telefonesExistentes = new Set(allLeads.map(l => l.telefone.replace(/\D/g, '')));
-                const telefonesNesteLote = new Set(); 
 
-                for(let i = 0; i < linhas.length; i++) { 
+                const telefonesExistentes = new Set(allLeads.map(l => l.telefone.replace(/\D/g, '')));
+                const telefonesNesteLote = new Set();
+
+                for (let i = 0; i < linhas.length; i++) {
                     const cols = linhas[i];
                     if (!cols || cols.length === 0) continue;
 
                     let n = '', t = '', uf = '', origem = '', ultimaCompra = null, tag = 'Novo';
-                    
+
                     if (layout === 'clientes') {
                         // Verifica cabeçalho
                         if (i === 0 && (String(cols[0]).toLowerCase().includes('código') || String(cols[1]).toLowerCase().includes('data'))) continue;
 
-                        n = cols[3] || 'Cliente Sem Nome'; 
-                        t = cols[13] || cols[14] || ''; 
-                        uf = cols[9] || ''; 
+                        n = cols[3] || 'Cliente Sem Nome';
+                        t = cols[13] || cols[14] || '';
+                        uf = cols[9] || '';
                         origem = 'Base Antiga';
 
                         if (cols[15] && String(cols[15]).trim() !== '') {
-                            let dataStr = String(cols[15]).split(' ')[0]; 
+                            let dataStr = String(cols[15]).split(' ')[0];
                             if (dataStr.includes('/')) {
                                 const parts = dataStr.split('/');
-                                if (parts.length === 3) ultimaCompra = `${parts[2]}-${parts[1]}-${parts[0]}`; 
+                                if (parts.length === 3) ultimaCompra = `${parts[2]}-${parts[1]}-${parts[0]}`;
                             } else if (dataStr.includes('-')) {
                                 ultimaCompra = dataStr;
                             }
                         }
 
                     } else if (layout === 'leads') {
-                        if (i === 0 && String(cols[0]).toLowerCase().includes('cnpj')) continue;
+                        // Pula cabeçalho se existir
+                        if (i === 0 && (String(cols[0]).toLowerCase().includes('cnpj') || String(cols[1]).toLowerCase().includes('cnpj'))) continue;
 
-                        n = (cols[2] && String(cols[2]).trim() !== '') ? cols[2] : (cols[1] || 'Empresa Sem Nome'); 
-                        t = cols[8] || ''; 
-                        uf = cols[7] || ''; 
+                        // cols[0] pode ser vazio (CSV começa com ;)
+                        // cols[1]=CNPJ, cols[2]=Razão Social, cols[3]=Nome Fantasia
+                        // cols[8]=UF, cols[9]=Telefone1, cols[10]=Telefone2, cols[11]=Email
+                        n = (cols[3] && String(cols[3]).trim() !== '') ? cols[3] : ((cols[2] && String(cols[2]).trim() !== '') ? cols[2] : (cols[1] || 'Empresa Sem Nome'));
+                        t = cols[9] || cols[10] || '';
+                        uf = cols[8] || '';
                         origem = 'Comprado';
 
                     } else if (layout === 'simples') {
@@ -1269,39 +1443,39 @@
                         t = cols[1] || '';
                         origem = 'Importação Manual';
                     }
-                    
-                    if(String(n).toLowerCase() === 'nome cliente') continue;
+
+                    if (String(n).toLowerCase() === 'nome cliente') continue;
 
                     let cleanPhone = t ? String(t).replace(/\D/g, '') : '';
 
                     if (cleanPhone.length < 10) {
                         const possiblePhoneCol = cols.find(c => {
-                            if(!c) return false;
+                            if (!c) return false;
                             let strC = String(c);
-                            if(strC.includes('@') || strC.toLowerCase().includes('cep')) return false;
+                            if (strC.includes('@') || strC.toLowerCase().includes('cep')) return false;
                             const digits = strC.replace(/\D/g, '');
                             return digits.length >= 10 && digits.length <= 15 && !strC.toLowerCase().includes('cnpj');
                         });
                         if (possiblePhoneCol) cleanPhone = String(possiblePhoneCol).replace(/\D/g, '');
                     }
 
-                    if(cleanPhone.length >= 10 && cleanPhone.length <= 15) { 
-                        
+                    if (cleanPhone.length >= 10 && cleanPhone.length <= 15) {
+
                         if (telefonesExistentes.has(cleanPhone) || telefonesNesteLote.has(cleanPhone)) {
                             countDuplicates++;
                         } else {
-                            telefonesNesteLote.add(cleanPhone); 
-                            
+                            telefonesNesteLote.add(cleanPhone);
+
                             const docId = 'imp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-                            
+
                             promisesBatch.push(
                                 setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leads_v2', docId), {
-                                    nome: n, telefone: cleanPhone, uf: uf, tipoCliente: tipoBase, origem: origem, 
+                                    nome: n, telefone: cleanPhone, uf: uf, tipoCliente: tipoBase, origem: origem,
                                     dataEntrada: hoje, dataUltimaCompra: ultimaCompra, tag: tag, historico: [], status: 'Novo'
                                 })
                             );
                             countImported++;
-                            
+
                             if (promisesBatch.length >= 100) {
                                 loaderText.innerText = `A guardar... (${countImported} gravados)`;
                                 await Promise.all(promisesBatch);
@@ -1312,20 +1486,23 @@
                         countInvalid++;
                     }
                 }
-                
+
                 if (promisesBatch.length > 0) {
                     loaderText.innerText = `A finalizar... (${countImported} gravados)`;
                     await Promise.all(promisesBatch);
                 }
-                
+
                 showToast(`Sucesso! ${countImported} clientes salvos. (${countDuplicates} duplicados ignorados, ${countInvalid} inválidos/sem telemóvel)`, countImported > 0 ? 'success' : 'warning');
-                closeModal('modal-import');
-                
-                // Limpa o estado
-                window.limparArquivo();
-                
-                if (currentView === 'base' || currentView === 'comprados') renderCurrentView();
-                
+
+                // Fecha modal apenas se está aberto
+                const modalImport = document.getElementById('modal-import');
+                if (modalImport && !modalImport.classList.contains('hidden')) {
+                    closeModal('modal-import');
+                    window.limparArquivo();
+                }
+
+                if (currentView === 'base' || currentView === 'comprados' || currentView === 'pastas') renderCurrentView();
+
             } catch (error) {
                 console.error("Erro crítico de importação PapaParse:", error);
                 showToast("Erro ao processar as colunas.", "error");
@@ -1334,12 +1511,281 @@
             }
         }
 
+        // --- GESTÃO DE PASTAS VIEW ---
+        function renderPastas(c) {
+            document.getElementById('page-title').innerText = "Gestão de Pastas";
+
+            const folders = [
+                {
+                    key: 'normal',
+                    title: 'Clientes Normal',
+                    subtitle: 'Base de clientes da loja (Código, Nome, CPF, Telefone...)',
+                    icon: 'ph-users-three',
+                    gradient: 'from-brand-500 to-emerald-600',
+                    bgLight: 'bg-brand-50',
+                    borderLight: 'border-brand-200',
+                    textColor: 'text-brand-700',
+                    layout: 'clientes',
+                    tipo: 'Normal',
+                    count: allLeads.filter(l => l.tipoCliente !== 'VIP' && l.origem !== 'Comprado').length
+                },
+                {
+                    key: 'comprado',
+                    title: 'Leads Comprado',
+                    subtitle: 'Leads atacado B2B (CNPJ, Razão Social, Telefone...)',
+                    icon: 'ph-shopping-bag',
+                    gradient: 'from-amber-500 to-orange-600',
+                    bgLight: 'bg-amber-50',
+                    borderLight: 'border-amber-200',
+                    textColor: 'text-amber-700',
+                    layout: 'leads',
+                    tipo: 'Normal',
+                    count: allLeads.filter(l => l.origem === 'Comprado').length
+                },
+                {
+                    key: 'vip',
+                    title: 'Clientes VIP',
+                    subtitle: 'Base exclusiva de clientes VIP (Código, Nome, CPF, Telefone...)',
+                    icon: 'ph-crown',
+                    gradient: 'from-vip-500 to-purple-700',
+                    bgLight: 'bg-vip-50',
+                    borderLight: 'border-vip-200',
+                    textColor: 'text-vip-700',
+                    layout: 'clientes',
+                    tipo: 'VIP',
+                    count: allLeads.filter(l => l.tipoCliente === 'VIP').length
+                }
+            ];
+
+            c.innerHTML = `
+                <div class="slide-up max-w-[1400px] mx-auto space-y-8 pb-10">
+                    
+                    <!-- Header -->
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-apple-bg rounded-full flex items-center justify-center shadow-sm border border-apple-border/30">
+                            <i class="ph ph-folder-open text-2xl text-apple-text"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-apple-text tracking-tight">Importar CSV por Pasta</h3>
+                            <p class="text-sm text-apple-textMut font-medium">Selecione o arquivo CSV de cada pasta para atualizar o CRM. O layout é detectado automaticamente.</p>
+                        </div>
+                    </div>
+
+                    <!-- Folder Cards -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        ${folders.map(f => `
+                            <div class="bg-white border border-apple-border/40 rounded-[2rem] shadow-sm overflow-hidden flex flex-col hover:shadow-apple-hover transition-all duration-300 group" id="folder-card-${f.key}">
+                                
+                                <!-- Card Header with gradient -->
+                                <div class="bg-gradient-to-br ${f.gradient} p-6 text-white relative overflow-hidden">
+                                    <div class="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
+                                    <div class="absolute -bottom-6 -left-6 w-20 h-20 bg-white/10 rounded-full blur-lg"></div>
+                                    <div class="relative z-10">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-md">
+                                                <i class="ph ${f.icon} text-xl"></i>
+                                            </div>
+                                            <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-md">${f.count} registros</span>
+                                        </div>
+                                        <h4 class="text-lg font-bold tracking-tight">${f.title}</h4>
+                                        <p class="text-xs text-white/70 mt-1 font-medium">${f.subtitle}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Card Body -->
+                                <div class="p-6 flex-1 flex flex-col gap-4">
+                                    
+                                    <!-- Auto-detected config -->
+                                    <div class="bg-apple-bg/50 rounded-xl p-3 border border-apple-border/30">
+                                        <p class="text-[10px] font-bold text-apple-textMut uppercase tracking-wider mb-2">Configuração Automática</p>
+                                        <div class="flex gap-2">
+                                            <span class="text-[10px] font-bold px-2 py-1 bg-white rounded-lg border border-apple-border/30 text-apple-text">Layout: ${f.layout === 'clientes' ? 'Base Clientes' : 'Leads Atacado'}</span>
+                                            <span class="text-[10px] font-bold px-2 py-1 ${f.tipo === 'VIP' ? 'bg-vip-50 text-vip-700 border-vip-200' : 'bg-brand-50 text-brand-700 border-brand-200'} rounded-lg border">Tipo: ${f.tipo}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- File Input Hidden -->
+                                    <input type="file" id="folder-file-${f.key}" class="hidden" accept=".csv,.txt,.xlsx,.xls" onchange="window.handleFolderFile('${f.key}', this.files[0])">
+
+                                    <!-- Drop Zone -->
+                                    <div id="folder-drop-${f.key}"
+                                         onclick="document.getElementById('folder-file-${f.key}').click()"
+                                         ondragover="event.preventDefault(); this.classList.add('border-brand-500', 'bg-brand-50');"
+                                         ondragleave="event.preventDefault(); this.classList.remove('border-brand-500', 'bg-brand-50');"
+                                         ondrop="event.preventDefault(); this.classList.remove('border-brand-500', 'bg-brand-50'); if(event.dataTransfer.files[0]) window.handleFolderFile('${f.key}', event.dataTransfer.files[0]);"
+                                         class="border-2 border-dashed border-apple-border hover:border-brand-500 hover:bg-brand-50/50 rounded-xl p-5 text-center cursor-pointer transition-all duration-300 bg-apple-bg/20 group/drop">
+                                        <div class="w-10 h-10 bg-apple-bg group-hover/drop:bg-white rounded-full flex items-center justify-center mx-auto mb-2 transition-colors">
+                                            <i class="ph ph-upload-simple text-lg text-apple-textMut group-hover/drop:text-brand-500 transition-colors"></i>
+                                        </div>
+                                        <p class="text-xs font-bold text-apple-text">Clique ou arraste o arquivo aqui</p>
+                                        <p class="text-[10px] text-apple-textMut mt-1 font-medium">Aceita .csv, .xlsx e .xls</p>
+                                    </div>
+
+                                    <!-- Selected File Display -->
+                                    <div id="folder-selected-${f.key}" class="hidden p-3 ${f.bgLight} rounded-xl border ${f.borderLight} items-center gap-2">
+                                        <i class="ph-fill ph-file-csv ${f.textColor} text-lg"></i>
+                                        <p id="folder-filename-${f.key}" class="text-xs ${f.textColor} font-bold truncate flex-1"></p>
+                                        <button onclick="window.clearFolderFile('${f.key}')" class="ml-auto ${f.textColor} hover:opacity-70 p-1 bg-white rounded-full shadow-sm"><i class="ph ph-x text-sm font-bold"></i></button>
+                                    </div>
+
+                                    <!-- Last Import Timestamp -->
+                                    <div id="folder-timestamp-${f.key}" class="${lastImportTimestamps[f.key] ? '' : 'hidden'} text-center">
+                                        <p class="text-[10px] text-apple-textMut font-medium">Última importação: <span class="font-bold text-apple-text">${lastImportTimestamps[f.key] || '-'}</span></p>
+                                    </div>
+
+                                    <!-- Import Button -->
+                                    <button onclick="window.importFromFolder('${f.key}')" id="folder-btn-${f.key}" 
+                                            class="w-full mt-auto bg-apple-text hover:bg-black text-white font-bold py-3 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-apple-text" disabled>
+                                        <i class="ph ph-database text-lg"></i> Importar e Salvar no Firebase
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- Info Box -->
+                    <div class="bg-apple-bg/40 border border-apple-border/30 rounded-[1.5rem] p-6 flex items-start gap-4">
+                        <div class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-blue-500 shrink-0">
+                            <i class="ph ph-info text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-apple-text text-sm">Como funciona?</h4>
+                            <ul class="text-xs text-apple-textMut font-medium mt-2 space-y-1.5">
+                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> Cada card corresponde a uma pasta no seu computador</li>
+                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> O layout (colunas) e tipo de cliente são detectados automaticamente</li>
+                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> Duplicados por telefone são ignorados automaticamente</li>
+                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> Os dados são salvos diretamente no Firebase em tempo real</li>
+                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> Atualize as pastas no computador e reimporte a qualquer momento</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- FOLDER IMPORT HANDLERS ---
+        window.handleFolderFile = (key, file) => {
+            if (!file) return;
+            folderFiles[key] = file;
+            document.getElementById(`folder-filename-${key}`).textContent = file.name;
+            document.getElementById(`folder-selected-${key}`).classList.remove('hidden');
+            document.getElementById(`folder-selected-${key}`).classList.add('flex');
+            document.getElementById(`folder-btn-${key}`).disabled = false;
+        };
+
+        window.clearFolderFile = (key) => {
+            folderFiles[key] = null;
+            document.getElementById(`folder-file-${key}`).value = '';
+            document.getElementById(`folder-selected-${key}`).classList.add('hidden');
+            document.getElementById(`folder-selected-${key}`).classList.remove('flex');
+            document.getElementById(`folder-btn-${key}`).disabled = true;
+        };
+
+        // --- FUNÇÃO UNIVERSAL DE PARSING (CSV + EXCEL) ---
+        function parseFileToArray(file, callback, errorCallback) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            const isExcel = (ext === 'xlsx' || ext === 'xls');
+
+            if (isExcel) {
+                if (!window.XLSX) {
+                    errorCallback('Biblioteca SheetJS não carregada. Atualize a página.');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const sheetName = workbook.SheetNames[0];
+                        const sheet = workbook.Sheets[sheetName];
+                        // Converte para array de arrays (sem cabeçalho)
+                        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+                        // Limpa valores
+                        const cleanRows = rows.map(row => row.map(cell => String(cell).trim().replace(/^['"]|['"]$/g, '')));
+                        callback(cleanRows);
+                    } catch (err) {
+                        console.error('Erro ao ler Excel:', err);
+                        errorCallback('Falha ao ler o arquivo Excel.');
+                    }
+                };
+                reader.onerror = () => errorCallback('Erro ao carregar o arquivo.');
+                reader.readAsArrayBuffer(file);
+            } else {
+                // CSV/TXT
+                if (!window.Papa) {
+                    errorCallback('Biblioteca PapaParse não carregada. Atualize a página.');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    let text = e.target.result;
+                    if (text.startsWith('\uFEFF')) text = text.substring(1);
+                    Papa.parse(text, {
+                        header: false,
+                        skipEmptyLines: true,
+                        transform: (value) => value.trim().replace(/^['"]|['"]$/g, ''),
+                        complete: (results) => {
+                            if (results.errors.length > 0) console.warn('Erros PapaParse:', results.errors);
+                            callback(results.data);
+                        },
+                        error: (err) => {
+                            console.error('Erro PapaParse:', err);
+                            errorCallback('Falha ao ler a estrutura do CSV.');
+                        }
+                    });
+                };
+                reader.onerror = () => errorCallback('Erro ao carregar o arquivo.');
+                reader.readAsText(file, 'windows-1252');
+            }
+        }
+
+        window.importFromFolder = (key) => {
+            const file = folderFiles[key];
+            if (!file) { showToast('Selecione um arquivo primeiro.', 'warning'); return; }
+
+            const configMap = {
+                normal: { layout: 'clientes', tipo: 'Normal' },
+                comprado: { layout: 'leads', tipo: 'Normal' },
+                vip: { layout: 'clientes', tipo: 'VIP' }
+            };
+
+            const config = configMap[key];
+            const loader = document.getElementById('loading-screen');
+            const loaderText = document.getElementById('global-loading-text');
+            const btn = document.getElementById(`folder-btn-${key}`);
+
+            btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin text-lg"></i> Processando...';
+            btn.disabled = true;
+            loader.classList.remove('hidden');
+            loaderText.innerText = `A processar: ${file.name}...`;
+
+            parseFileToArray(file, async (rows) => {
+                await processarArrayPapaParse(rows, config.layout, config.tipo);
+
+                // Update timestamp
+                const now = new Date();
+                lastImportTimestamps[key] = now.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+                // Reset UI
+                window.clearFolderFile(key);
+                btn.innerHTML = '<i class="ph ph-database text-lg"></i> Importar e Salvar no Firebase';
+
+                if (currentView === 'pastas') renderPastas(document.getElementById('app-content'));
+            }, (errMsg) => {
+                showToast(errMsg, 'error');
+                loader.classList.add('hidden');
+                btn.innerHTML = '<i class="ph ph-database text-lg"></i> Importar e Salvar no Firebase';
+                btn.disabled = false;
+            });
+        };
+
         // --- UTILS ---
-        function formatDate(ds) { if(!ds) return ''; const [y,m,d] = ds.split('-'); return `${d}/${m}`; }
+        function formatDate(ds) { if (!ds) return ''; const [y, m, d] = ds.split('-'); return `${d}/${m}`; }
         function getClasseColor(c) {
-            const map = { 'Novo Lead':'text-amber-500', 'Ativo':'text-emerald-500', 'Pós-Venda':'text-brand-500', 'Risco Inatividade':'text-orange-500', 'Inativo':'text-apple-textMut' };
+            const map = { 'Novo Lead': 'text-amber-500', 'Ativo': 'text-emerald-500', 'Pós-Venda': 'text-brand-500', 'Risco Inatividade': 'text-orange-500', 'Inativo': 'text-apple-textMut' };
             return map[c] || 'text-apple-textMut';
         }
     </script>
 </body>
+
 </html>
