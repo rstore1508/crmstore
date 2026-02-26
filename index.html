@@ -389,7 +389,7 @@
                         </div>
                     </div>
 
-                    <!-- INPUT ESCONDIDO FORA DA ZONA DE CLIQUE (Fim do Bug do Loop) -->
+                    <!-- INPUT ESCONDIDO FORA DA ZONA DE CLIQUE -->
                     <input type="file" id="csv-file-input" class="hidden" accept=".csv,.txt,.xlsx,.xls"
                         onchange="window.handleFileSelect(this.files[0])">
 
@@ -459,7 +459,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, increment, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firebase Config
         const firebaseConfig = {
@@ -1181,7 +1181,7 @@
                                 ${comprados.map(lead => `
                                     <tr class="bg-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-2xl transition-all duration-300 hover:shadow-md group">
                                         <td class="py-4 px-6 font-bold text-apple-text rounded-l-2xl">${lead.nome}</td>
-                                        <td class="py-4 px-4 font-medium text-apple-textMut">${lead.telefone}</td>
+                                        <td class="py-4 px-4 font-medium text-apple-textMut">${lead.telefone || '-'}</td>
                                         <td class="py-4 px-4"><span class="px-3 py-1 bg-apple-bg border border-apple-border/50 text-apple-text rounded-full text-xs font-bold shadow-sm">${lead.tag || 'Novo'}</span></td>
                                         <td class="py-4 px-4 text-xs font-semibold text-apple-textMut">${formatDate(lead.proxRetorno) || '-'}</td>
                                         <td class="py-4 px-6 text-right rounded-r-2xl">
@@ -1229,11 +1229,11 @@
                             </thead>
                             <tbody>
                                 ${base.map(lead => `
-                                    <tr class="bg-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-2xl transition-all duration-300 hover:shadow-md group row-base" data-nome="${lead.nome.toLowerCase()}" data-tel="${lead.telefone}" data-tipo="${lead.tipoCliente || 'Normal'}">
+                                    <tr class="bg-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-2xl transition-all duration-300 hover:shadow-md group row-base" data-nome="${lead.nome.toLowerCase()}" data-tel="${lead.telefone || ''}" data-tipo="${lead.tipoCliente || 'Normal'}">
                                         <td class="py-4 px-6 font-bold text-apple-text rounded-l-2xl flex items-center gap-2">
                                             ${lead.nome} ${lead.tipoCliente === 'VIP' ? '<i class="ph-fill ph-star text-vip-500" title="VIP"></i>' : ''}
                                         </td>
-                                        <td class="py-4 px-4 font-medium text-apple-textMut">${lead.telefone}</td>
+                                        <td class="py-4 px-4 font-medium text-apple-textMut">${lead.telefone || '-'}</td>
                                         <td class="py-4 px-4"><span class="text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full ${lead.tipoCliente === 'VIP' ? 'bg-vip-50 text-vip-700 border border-vip-200' : 'bg-apple-bg text-apple-text border border-apple-border'} shadow-sm">${lead.tipoCliente || 'Normal'}</span></td>
                                         <td class="py-4 px-4 text-xs font-bold ${getClasseColor(lead.classe)}">${lead.classe}</td>
                                         <td class="py-4 px-4 text-xs font-semibold text-apple-textMut">${formatDate(lead.dataUltimaCompra) || 'Nenhuma'}</td>
@@ -1310,6 +1310,53 @@
             });
             showToast("Cliente registado com sucesso!");
             closeModal('modal-novo-lead');
+        };
+
+        // --- LIMPEZA DE BASE DE DADOS ---
+        window.limparTodaBase = async () => {
+            const confirmacao = confirm('⚠️ ATENÇÃO: Tem certeza absoluta que deseja APAGAR TODOS os contatos e leads da base? Esta ação é irreversível!');
+            if (!confirmacao) return;
+
+            const secondConfirm = prompt('Digite "APAGAR TUDO" para confirmar a exclusão de todos os dados:');
+            if (secondConfirm !== 'APAGAR TUDO') {
+                showToast('Operação de limpeza cancelada.', 'info');
+                return;
+            }
+
+            const loader = document.getElementById('loading-screen');
+            const loaderText = document.getElementById('global-loading-text');
+            loader.classList.remove('hidden');
+            loaderText.innerText = "A apagar toda a base de dados... Pode demorar alguns segundos.";
+
+            try {
+                const leadsRef = collection(db, 'artifacts', appId, 'public', 'data', 'leads_v2');
+                const snapshot = await getDocs(leadsRef);
+
+                let batch = writeBatch(db);
+                let count = 0;
+
+                for (const docSnap of snapshot.docs) {
+                    batch.delete(docSnap.ref);
+                    count++;
+                    if (count === 400) { // Limite do Firestore é 500
+                        await batch.commit();
+                        batch = writeBatch(db);
+                        count = 0;
+                    }
+                }
+                
+                if (count > 0) {
+                    await batch.commit();
+                }
+
+                showToast('Base de dados limpa com sucesso! Tudo zerado.', 'success');
+            } catch (err) {
+                console.error('Erro ao limpar base:', err);
+                showToast('Erro ao apagar os dados.', 'error');
+            } finally {
+                loader.classList.add('hidden');
+                if (currentView === 'pastas') renderPastas(document.getElementById('app-content'));
+            }
         };
 
         // =========================================================================
@@ -1394,11 +1441,13 @@
             try {
                 let countImported = 0;
                 let countDuplicates = 0;
-                let countInvalid = 0;
                 let promisesBatch = [];
 
-                const telefonesExistentes = new Set(allLeads.map(l => l.telefone.replace(/\D/g, '')));
+                const telefonesExistentes = new Set(allLeads.map(l => l.telefone ? l.telefone.replace(/\D/g, '') : ''));
                 const telefonesNesteLote = new Set();
+                
+                const nomesExistentes = new Set(allLeads.map(l => l.nome ? l.nome.toLowerCase().trim() : ''));
+                const nomesNesteLote = new Set();
 
                 for (let i = 0; i < linhas.length; i++) {
                     const cols = linhas[i];
@@ -1410,7 +1459,7 @@
                         // Verifica cabeçalho
                         if (i === 0 && (String(cols[0]).toLowerCase().includes('código') || String(cols[1]).toLowerCase().includes('data'))) continue;
 
-                        n = cols[3] || 'Cliente Sem Nome';
+                        n = cols[3] || '';
                         t = cols[13] || cols[14] || '';
                         uf = cols[9] || '';
                         origem = 'Base Antiga';
@@ -1429,25 +1478,28 @@
                         // Pula cabeçalho se existir
                         if (i === 0 && (String(cols[0]).toLowerCase().includes('cnpj') || String(cols[1]).toLowerCase().includes('cnpj'))) continue;
 
-                        // cols[0] pode ser vazio (CSV começa com ;)
-                        // cols[1]=CNPJ, cols[2]=Razão Social, cols[3]=Nome Fantasia
-                        // cols[8]=UF, cols[9]=Telefone1, cols[10]=Telefone2, cols[11]=Email
-                        n = (cols[3] && String(cols[3]).trim() !== '') ? cols[3] : ((cols[2] && String(cols[2]).trim() !== '') ? cols[2] : (cols[1] || 'Empresa Sem Nome'));
+                        n = (cols[3] && String(cols[3]).trim() !== '') ? cols[3] : ((cols[2] && String(cols[2]).trim() !== '') ? cols[2] : (cols[1] || ''));
                         t = cols[9] || cols[10] || '';
                         uf = cols[8] || '';
                         origem = 'Comprado';
 
                     } else if (layout === 'simples') {
                         if (i === 0 && String(cols[0]).toLowerCase().includes('nome')) continue;
-                        n = cols[0] || 'Nome não definido';
+                        n = cols[0] || '';
                         t = cols[1] || '';
                         origem = 'Importação Manual';
                     }
 
                     if (String(n).toLowerCase() === 'nome cliente') continue;
+                    
+                    // Fallback se não tiver nome em nenhuma coluna (ex: arquivo mal formatado)
+                    if (!n || n.trim() === '') {
+                        n = 'Registro sem nome';
+                    }
 
                     let cleanPhone = t ? String(t).replace(/\D/g, '') : '';
 
+                    // Se não encontrou telefone nas colunas definidas, procura em toda a linha
                     if (cleanPhone.length < 10) {
                         const possiblePhoneCol = cols.find(c => {
                             if (!c) return false;
@@ -1458,32 +1510,49 @@
                         });
                         if (possiblePhoneCol) cleanPhone = String(possiblePhoneCol).replace(/\D/g, '');
                     }
+                    
+                    // -- NOVA LÓGICA DE DEDUPLICAÇÃO --
+                    // Agora gravamos todos. Se não tem telemóvel, validamos duplicados pelo NOME
+                    let isDuplicate = false;
+                    const nomeKey = n.toLowerCase().trim();
 
                     if (cleanPhone.length >= 10 && cleanPhone.length <= 15) {
-
+                        // Tem telemóvel, deduplica pelo telemóvel
                         if (telefonesExistentes.has(cleanPhone) || telefonesNesteLote.has(cleanPhone)) {
-                            countDuplicates++;
-                        } else {
-                            telefonesNesteLote.add(cleanPhone);
-
-                            const docId = 'imp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-
-                            promisesBatch.push(
-                                setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leads_v2', docId), {
-                                    nome: n, telefone: cleanPhone, uf: uf, tipoCliente: tipoBase, origem: origem,
-                                    dataEntrada: hoje, dataUltimaCompra: ultimaCompra, tag: tag, historico: [], status: 'Novo'
-                                })
-                            );
-                            countImported++;
-
-                            if (promisesBatch.length >= 100) {
-                                loaderText.innerText = `A guardar... (${countImported} gravados)`;
-                                await Promise.all(promisesBatch);
-                                promisesBatch = [];
-                            }
+                            isDuplicate = true;
                         }
                     } else {
-                        countInvalid++;
+                        // NÃO TEM telemóvel válido, deduplica pelo NOME
+                        if (nomesExistentes.has(nomeKey) || nomesNesteLote.has(nomeKey)) {
+                            isDuplicate = true;
+                        }
+                    }
+
+                    if (isDuplicate) {
+                        countDuplicates++;
+                    } else {
+                        // Marca como processado para evitar duplicação no mesmo lote
+                        if (cleanPhone.length >= 10 && cleanPhone.length <= 15) {
+                            telefonesNesteLote.add(cleanPhone);
+                        } else {
+                            nomesNesteLote.add(nomeKey);
+                        }
+
+                        const docId = 'imp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+
+                        promisesBatch.push(
+                            setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leads_v2', docId), {
+                                nome: n, telefone: cleanPhone, uf: uf, tipoCliente: tipoBase, origem: origem,
+                                dataEntrada: hoje, dataUltimaCompra: ultimaCompra, tag: tag, historico: [], status: 'Novo'
+                            })
+                        );
+                        countImported++;
+
+                        if (promisesBatch.length >= 100) {
+                            loaderText.innerText = `A guardar... (${countImported} gravados)`;
+                            await Promise.all(promisesBatch);
+                            promisesBatch = [];
+                        }
                     }
                 }
 
@@ -1492,7 +1561,7 @@
                     await Promise.all(promisesBatch);
                 }
 
-                showToast(`Sucesso! ${countImported} clientes salvos. (${countDuplicates} duplicados ignorados, ${countInvalid} inválidos/sem telemóvel)`, countImported > 0 ? 'success' : 'warning');
+                showToast(`Sucesso! ${countImported} registros salvos. (${countDuplicates} duplicados ignorados)`, countImported > 0 ? 'success' : 'warning');
 
                 // Fecha modal apenas se está aberto
                 const modalImport = document.getElementById('modal-import');
@@ -1561,14 +1630,21 @@
                 <div class="slide-up max-w-[1400px] mx-auto space-y-8 pb-10">
                     
                     <!-- Header -->
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-apple-bg rounded-full flex items-center justify-center shadow-sm border border-apple-border/30">
-                            <i class="ph ph-folder-open text-2xl text-apple-text"></i>
+                    <div class="flex items-center justify-between flex-wrap gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-apple-bg rounded-full flex items-center justify-center shadow-sm border border-apple-border/30">
+                                <i class="ph ph-folder-open text-2xl text-apple-text"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-apple-text tracking-tight">Gestão de Pastas</h3>
+                                <p class="text-sm text-apple-textMut font-medium">Selecione o arquivo CSV de cada pasta para atualizar o CRM.</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-apple-text tracking-tight">Importar CSV por Pasta</h3>
-                            <p class="text-sm text-apple-textMut font-medium">Selecione o arquivo CSV de cada pasta para atualizar o CRM. O layout é detectado automaticamente.</p>
-                        </div>
+                        
+                        <!-- BOTÃO RESET / LIMPEZA -->
+                        <button onclick="limparTodaBase()" class="bg-red-50 hover:bg-red-500 text-red-600 hover:text-white px-5 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 transition-all border border-red-200 hover:border-red-500 shadow-sm">
+                            <i class="ph ph-trash text-lg"></i> Limpar Todos os Contatos
+                        </button>
                     </div>
 
                     <!-- Folder Cards -->
@@ -1651,11 +1727,10 @@
                         <div>
                             <h4 class="font-bold text-apple-text text-sm">Como funciona?</h4>
                             <ul class="text-xs text-apple-textMut font-medium mt-2 space-y-1.5">
-                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> Cada card corresponde a uma pasta no seu computador</li>
+                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> NENHUM registo é descartado. Se faltar o telefone, usamos o nome para evitar duplicados.</li>
                                 <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> O layout (colunas) e tipo de cliente são detectados automaticamente</li>
-                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> Duplicados por telefone são ignorados automaticamente</li>
                                 <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> Os dados são salvos diretamente no Firebase em tempo real</li>
-                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> Atualize as pastas no computador e reimporte a qualquer momento</li>
+                                <li class="flex items-center gap-2"><i class="ph ph-check-circle text-brand-500"></i> Errou a pasta? Use o botão "Limpar Todos os Contatos" para começar do zero!</li>
                             </ul>
                         </div>
                     </div>
