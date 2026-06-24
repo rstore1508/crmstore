@@ -40,10 +40,32 @@
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
-        .fade-in { animation: fadeIn .35s ease-out forwards; }
+        .fade-in { animation: fadeIn .4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes pulse-slow { 0%,100%{opacity:1} 50%{opacity:.6} }
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        
+        /* Staggered entrance animation for dashboard blocks */
+        .stagger-in > * { opacity: 0; animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .stagger-in > *:nth-child(1) { animation-delay: 0.04s; }
+        .stagger-in > *:nth-child(2) { animation-delay: 0.08s; }
+        .stagger-in > *:nth-child(3) { animation-delay: 0.12s; }
+        .stagger-in > *:nth-child(4) { animation-delay: 0.16s; }
+        .stagger-in > *:nth-child(5) { animation-delay: 0.2s; }
+        .stagger-in > *:nth-child(6) { animation-delay: 0.24s; }
+        .stagger-in > *:nth-child(7) { animation-delay: 0.28s; }
+        .stagger-in > *:nth-child(8) { animation-delay: 0.32s; }
+        
+        /* Dynamic scale on metrics hover */
+        .metric-card-hover { transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+        .metric-card-hover:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(36, 59, 83, 0.06); }
+        body.dark .metric-card-hover:hover { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); }
+
+        /* Grow bar animation for charts */
+        @keyframes growBar { from { width: 0%; } }
+        .animate-grow-bar { animation: growBar 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-origin: left; }
+        
         .pulse-slow { animation: pulse-slow 2s ease-in-out infinite; }
+        @keyframes pulse-slow { 0%,100%{opacity:1} 50%{opacity:.6} }
         
         /* Tema Escuro Glassmorphism */
         body.dark { background-color: #0f172a; color: #f1f5f9; }
@@ -504,7 +526,7 @@
             const carrinhos = allLeads.filter(l=>l.statusAtendimento==='Carrinho Abandonado');
             const boletos = allLeads.filter(l=>l.statusAtendimento==='Aguardando Pagamento');
 
-            c.innerHTML = `<div class="space-y-5 fade-in pb-8">
+            c.innerHTML = `<div class="space-y-5 stagger-in pb-8">
                 <!-- Banner Import -->
                 <div class="p-3.5 rounded-xl border flex items-center gap-3 ${alertImport?'bg-amber-50 border-amber-200 text-amber-800':'bg-green-50 border-green-200 text-green-800'}">
                     <i class="ph ${alertImport?'ph-warning-octagon text-2xl pulse-slow':'ph-check-circle text-2xl'}"></i>
@@ -522,6 +544,15 @@
                     ${cardSeg('ph-warning-octagon','Risco',seg['Risco'],'amber','31-60 dias','Risco')}
                     ${cardSeg('ph-x-circle','Inativo',seg['Inativo'],'red','> 60 dias','Inativo')}
                     ${cardSeg('ph-snowflake','Lead Frio',seg['Lead Frio'],'slate','Nunca comprou','Lead Frio')}
+                </div>
+
+                <!-- Bloco de Diretriz de Rotina -->
+                <div class="p-4 rounded-xl border border-brand-200/50 bg-brand-50/20 text-brand-800 flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-brand-100/50 flex items-center justify-center text-brand-600 shrink-0"><i class="ph ph-calendar-check text-xl"></i></div>
+                    <div class="flex-1">
+                        <h4 class="text-xs font-bold text-brand-800">Rotina de Atendimento Diária</h4>
+                        <p class="text-[10px] text-slate-500 leading-snug">Siga a ordem dos passos abaixo para recuperar vendas e reaquecer lojistas. Clique nas tarefas para abrir a fila de atendimento imediato.</p>
+                    </div>
                 </div>
 
                 <!-- Rotina -->
@@ -571,8 +602,41 @@
                     </div>
                     <div class="md:col-span-2 space-y-2.5" id="dash-estados"></div>
                 </div>
+
+                <!-- Atração & Novos Clientes -->
+                <div class="bg-white p-5 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="md:col-span-1 flex flex-col justify-center">
+                        <h3 class="font-bold text-sm text-slate-800 mb-1">Novos Clientes</h3>
+                        <p class="text-[10px] text-slate-400 mb-2">Aquisição e segmentação de leads</p>
+                        
+                        <!-- Novos na Semana -->
+                        <div class="mt-3 p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Nesta Semana</span>
+                                <span class="text-sm font-extrabold text-slate-700" id="dash-novos-semana-total">0</span>
+                            </div>
+                            <div class="flex items-center justify-between text-[10px]">
+                                <span class="text-slate-500 font-semibold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span> Normal: <strong class="text-slate-600" id="dash-novos-semana-normal">0</strong></span>
+                                <span class="text-slate-500 font-semibold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span> VIP: <strong class="text-purple-500" id="dash-novos-semana-vip">0</strong></span>
+                            </div>
+                            <!-- Mini Barra de Proporção Semanal -->
+                            <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden flex">
+                                <div id="dash-novos-semana-bar-normal" class="bg-brand-400 h-full animate-grow-bar" style="width: 0%"></div>
+                                <div id="dash-novos-semana-bar-vip" class="bg-purple-500 h-full animate-grow-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2 space-y-3">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="text-xs font-bold text-slate-700">Histórico Mensal de Novos Clientes (Últimos 6 Meses)</h4>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">VIP vs Normal</span>
+                        </div>
+                        <div class="space-y-2.5" id="dash-novos-meses"></div>
+                    </div>
+                </div>
             </div>`;
             renderEstados('dash-estados');
+            renderNovosClientes();
             if(upgradeVip.length>0) mostrarFilaVIP();
         }
 
@@ -585,7 +649,7 @@
                 slate: 'text-slate-400 bg-slate-50 border-slate-100'
             };
             let colors = colorMap[color] || 'text-slate-500 bg-slate-50 border-slate-100';
-            return `<div onclick="filtrarCRM('${filtro}')" class="bg-white p-4 rounded-xl border border-slate-200 hover:border-brand-400 cursor-pointer transition-all hover:shadow-sm">
+            return `<div onclick="filtrarCRM('${filtro}')" class="bg-white p-4 rounded-xl border border-slate-200 hover:border-brand-400 cursor-pointer transition-all hover:shadow-sm metric-card-hover">
                 <div class="flex items-center gap-1.5 text-[9px] text-slate-400 font-bold uppercase">
                     <span class="w-5 h-5 rounded-lg flex items-center justify-center border ${colors}"><i class="ph ${icon} text-[10px]"></i></span>
                     <span>${label}</span>
@@ -639,7 +703,96 @@
             el.innerHTML=sorted.map(([uf,d])=>{
                 const pct=((d.t/total)*100).toFixed(1), w=(d.t/max)*100, nPct=(d.n/d.t)*100, vPct=(d.v/d.t)*100;
                 return `<div class="space-y-0.5"><div class="flex justify-between text-[10px]"><span class="font-bold text-slate-800">${uf} <span class="text-slate-400 font-normal">(${pct}%)</span></span><span class="text-slate-400 font-semibold">${d.t} · <span class="text-slate-600">${d.n}N</span>/<span class="text-purple-500">${d.v}V</span></span></div>
-                <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden flex" style="width:${w}%"><div class="bg-brand-400 h-full" style="width:${nPct}%"></div><div class="bg-purple-500 h-full" style="width:${vPct}%"></div></div></div>`;
+                <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden flex" style="width:${w}%"><div class="bg-brand-400 h-full animate-grow-bar" style="width:${nPct}%"></div><div class="bg-purple-500 h-full animate-grow-bar" style="width:${vPct}%"></div></div></div>`;
+            }).join('');
+        }
+
+        function renderNovosClientes() {
+            const elSemanaTotal = document.getElementById('dash-novos-semana-total');
+            const elSemanaNormal = document.getElementById('dash-novos-semana-normal');
+            const elSemanaVip = document.getElementById('dash-novos-semana-vip');
+            const elSemanaBarNormal = document.getElementById('dash-novos-semana-bar-normal');
+            const elSemanaBarVip = document.getElementById('dash-novos-semana-bar-vip');
+            const elMeses = document.getElementById('dash-novos-meses');
+
+            if (!elSemanaTotal || !elMeses) return;
+
+            // 1. Novos na Semana (últimos 7 dias)
+            const novosSemana = allLeads.filter(l => {
+                const data = l.dataEntrada;
+                if (!data) return false;
+                return diasDesde(data) <= 7;
+            });
+
+            const semNormal = novosSemana.filter(l => l.tipoCliente === 'Normal').length;
+            const semVip = novosSemana.filter(l => l.tipoCliente === 'VIP').length;
+            const semTotal = novosSemana.length;
+
+            elSemanaTotal.innerText = semTotal;
+            elSemanaNormal.innerText = semNormal;
+            elSemanaVip.innerText = semVip;
+
+            if (semTotal > 0) {
+                const pctNormal = (semNormal / semTotal) * 100;
+                const pctVip = (semVip / semTotal) * 100;
+                elSemanaBarNormal.style.width = `${pctNormal}%`;
+                elSemanaBarVip.style.width = `${pctVip}%`;
+            } else {
+                elSemanaBarNormal.style.width = '0%';
+                elSemanaBarVip.style.width = '0%';
+            }
+
+            // 2. Histórico Mensal (Últimos 6 Meses)
+            const mesesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const mesesParaMostrar = [];
+            const hojeData = new Date();
+
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date(hojeData.getFullYear(), hojeData.getMonth() - i, 1);
+                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                const label = `${mesesNomes[d.getMonth()]}/${String(d.getFullYear()).substring(2)}`;
+                mesesParaMostrar.push({ key, label, normal: 0, vip: 0, total: 0 });
+            }
+
+            allLeads.forEach(l => {
+                if (!l.dataEntrada) return;
+                try {
+                    const d = new Date(l.dataEntrada);
+                    if (isNaN(d.getTime())) return;
+                    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                    const mesObj = mesesParaMostrar.find(m => m.key === key);
+                    if (mesObj) {
+                        if (l.tipoCliente === 'VIP') {
+                            mesObj.vip++;
+                        } else {
+                            mesObj.normal++;
+                        }
+                        mesObj.total++;
+                    }
+                } catch (e) {}
+            });
+
+            const maxMensal = Math.max(...mesesParaMostrar.map(m => m.total), 1);
+
+            elMeses.innerHTML = mesesParaMostrar.map(m => {
+                const w = (m.total / maxMensal) * 100;
+                const pctNormal = m.total > 0 ? (m.normal / m.total) * 100 : 0;
+                const pctVip = m.total > 0 ? (m.vip / m.total) * 100 : 0;
+
+                return `<div class="space-y-0.5">
+                    <div class="flex justify-between text-[10px]">
+                        <span class="font-bold text-slate-800">${m.label}</span>
+                        <span class="text-slate-400 font-semibold">
+                            ${m.total} total · 
+                            <span class="text-slate-600">${m.normal} Normal</span> / 
+                            <span class="text-purple-500">${m.vip} VIP</span>
+                        </span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden flex" style="width:${w || 1}%">
+                        <div class="bg-brand-400 h-full animate-grow-bar" style="width:${pctNormal}%"></div>
+                        <div class="bg-purple-500 h-full animate-grow-bar" style="width:${pctVip}%"></div>
+                    </div>
+                </div>`;
             }).join('');
         }
 
@@ -661,9 +814,23 @@
         
         function colunaKanban(status, cor) {
             const leads = allLeads.filter(l => (l.statusAtendimento||'Novo') === status).sort((a,b)=>new Date(b.dataUltimaInteracao||0)-new Date(a.dataUltimaInteracao||0));
+            
+            let headBg = 'bg-slate-50/80';
+            let titleColor = 'text-slate-700';
+            if (status === 'Carrinho Abandonado') {
+                headBg = 'bg-red-50/80 border-b border-red-100/70';
+                titleColor = 'text-red-700';
+            } else if (status === 'Aguardando Pagamento') {
+                headBg = 'bg-amber-50/80 border-b border-amber-100/70';
+                titleColor = 'text-amber-700';
+            } else if (status === 'Convertido') {
+                headBg = 'bg-emerald-50/80 border-b border-emerald-100/70';
+                titleColor = 'text-emerald-700';
+            }
+
             return `<div class="w-72 shrink-0 flex flex-col bg-slate-100/50 rounded-2xl border border-slate-200 snap-center max-h-full overflow-hidden">
-                <div class="p-3 border-b border-slate-200 flex justify-between items-center bg-slate-50/80 rounded-t-2xl shrink-0">
-                    <h3 class="font-bold text-xs text-slate-700">${status}</h3>
+                <div class="p-3 border-b border-slate-200 flex justify-between items-center ${headBg} rounded-t-2xl shrink-0">
+                    <h3 class="font-bold text-xs ${titleColor}">${status}</h3>
                     <span class="bg-white text-[10px] font-bold px-2 py-0.5 rounded-lg border border-slate-200 text-slate-500 shadow-sm">${leads.length}</span>
                 </div>
                 <div class="flex-1 p-3 overflow-y-auto space-y-3 kanban-col min-h-[100px]" data-status="${status}">
@@ -693,10 +860,20 @@
                 segmentClass = 'border-slate-200 border-l-4 border-l-purple-500';
             }
 
+            let cardBg = 'bg-white';
+            let borderStyle = segmentClass;
+            if (status === 'Carrinho Abandonado') {
+                cardBg = 'bg-red-50/30';
+                borderStyle = 'border-red-200 border-l-4 border-l-red-500';
+            } else if (status === 'Aguardando Pagamento') {
+                cardBg = 'bg-amber-50/30';
+                borderStyle = 'border-amber-200 border-l-4 border-l-amber-500';
+            }
+
             const btnVoltar = status !== 'Novo' ? `<button onclick="event.stopPropagation();moverColuna('${l.id}', -1)" class="bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-600 w-5 h-5 rounded flex items-center justify-center transition-colors" title="Mover para esquerda"><i class="ph ph-caret-left-bold text-[10px]"></i></button>` : '';
             const btnAvancar = status !== 'Convertido' ? `<button onclick="event.stopPropagation();moverColuna('${l.id}', 1)" class="bg-brand-100 hover:bg-brand-200 border border-brand-300 text-brand-700 w-5 h-5 rounded flex items-center justify-center transition-colors" title="Mover para direita"><i class="ph ph-caret-right-bold text-[10px]"></i></button>` : '';
 
-            return `<div class="bg-white p-3 rounded-xl border ${segmentClass} transition-all duration-300 hover:scale-[1.01] hover:shadow-md group relative" data-id="${l.id}">
+            return `<div class="${cardBg} p-3 rounded-xl border ${borderStyle} transition-all duration-300 hover:scale-[1.01] hover:shadow-md group relative" data-id="${l.id}">
                 <div class="flex justify-between items-start mb-1.5">
                     <h4 onclick="abrirSlideover('${l.id}')" class="font-bold text-xs text-slate-800 cursor-pointer hover:text-brand-400 truncate pr-2" title="${l.nome}">${l.nome}</h4>
                 </div>
@@ -709,7 +886,7 @@
                     <div class="flex gap-1 items-center">
                         ${btnVoltar}
                         ${btnAvancar}
-                        <button onclick="event.stopPropagation();abrirWA('${l.telefone}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 p-1.5 rounded-lg transition-colors" title="Enviar WhatsApp"><i class="ph ph-whatsapp-logo text-sm"></i></button>
+                        <button onclick="event.stopPropagation();enviarSmartMsgRapida('${l.id}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 p-1.5 rounded-lg transition-colors" title="Copiar e Enviar Smart Script Recomendado"><i class="ph ph-whatsapp-logo text-sm"></i></button>
                     </div>
                 </div>
             </div>`;
@@ -892,15 +1069,26 @@
                 const qualificaVip = !isVip && (l.totalPedidos || 0) >= 2;
                 const actionBtn = qualificaVip
                     ? `<button onclick="event.stopPropagation();enviarConviteVIPRapido('${l.id}')" class="bg-amber-600 hover:bg-amber-700 text-white text-[9px] font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow-sm transition-all hover:scale-[1.02]" title="Enviar Onboarding VIP e Promover no Firestore"><i class="ph ph-crown text-xs"></i> Convidar VIP</button>`
-                    : `<button onclick="event.stopPropagation();abrirWA('${l.telefone}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition-all"><i class="ph ph-whatsapp-logo text-sm"></i>WhatsApp</button>`;
+                    : `<button onclick="event.stopPropagation();enviarSmartMsgRapida('${l.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition-all" title="Copiar e Enviar Smart Script Recomendado"><i class="ph ph-whatsapp-logo text-sm"></i>Smart WA</button>`;
 
-                return `<div onclick="abrirSlideover('${l.id}')" class="bg-white border border-slate-200 hover:border-brand-400 p-4 rounded-xl cursor-pointer transition-all hover:shadow-sm group">
+                let cardStyle = 'bg-white border-slate-200 hover:border-brand-400 hover:shadow-sm';
+                if (st === 'Carrinho Abandonado') {
+                    cardStyle = 'bg-red-50/30 border-red-200 hover:border-red-400 hover:shadow-[0_0_8px_rgba(239,68,68,0.12)] ring-1 ring-red-100/50';
+                } else if (st === 'Aguardando Pagamento') {
+                    cardStyle = 'bg-amber-50/30 border-amber-200 hover:border-amber-400 hover:shadow-[0_0_8px_rgba(245,158,11,0.12)] ring-1 ring-amber-100/50';
+                } else if (cl.seg === 'Inativo') {
+                    cardStyle = 'bg-slate-50/50 border-slate-200 opacity-85 hover:opacity-100 hover:border-brand-400';
+                }
+
+                const vipBadgeHtml = isVip ? '<span class="bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[8px] font-extrabold px-1.5 py-0.5 rounded-full border border-purple-300 flex items-center gap-0.5"><i class="ph ph-crown-simple text-[9px]"></i> VIP</span>' : '';
+
+                return `<div onclick="abrirSlideover('${l.id}')" class="${cardStyle} border p-4 rounded-xl cursor-pointer transition-all group">
                     <div class="flex justify-between items-start mb-2">
                         <h3 class="font-bold text-xs text-slate-800 group-hover:text-brand-400 transition-colors truncate max-w-[150px]">${l.nome}</h3>
                         <div class="flex gap-1 shrink-0">
                             ${icpBadge}
                             <span class="border text-[8px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-1 ${cl.badge}"><i class="ph ${cl.icon} text-[10px]"></i> ${cl.seg}</span>
-                            ${isVip?'<span class="bg-purple-100 text-purple-600 text-[8px] font-bold px-1.5 py-0.5 rounded-full border border-purple-200">VIP</span>':''}
+                            ${vipBadgeHtml}
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-1.5 text-[10px] text-slate-400 mb-3">
@@ -1060,6 +1248,9 @@
                     catSel.value = recommendedScriptCategory;
                     carregarTemplatesScript(recommendedScriptCategory);
                 }
+                if (recommendedScriptId) {
+                    copiarSmartMsg(recommendedScriptId);
+                }
             }, 50);
 
             const tb=document.getElementById('so-tipo-badge');
@@ -1100,6 +1291,42 @@
         window.alterarStatusCliente = async(v)=>{if(!clienteAtivoId)return;try{await updateDoc(doc(db,'leads',clienteAtivoId),{statusAtendimento:v,dataUltimaInteracao:new Date().toISOString()});showToast(`Status: ${v}`);if(v==='Convertido'&&document.getElementById('so-status'))document.getElementById('so-status').value=v;}catch(e){showToast('Erro.','error');}};
 
         window.abrirWA=(tel)=>{let n=String(tel).replace(/\D/g,'');if(n.length<=11&&!n.startsWith('55'))n='55'+n;window.open(`https://api.whatsapp.com/send?phone=${n}`,'_blank');};
+
+        window.enviarSmartMsgRapida = (id) => {
+            const l = allLeads.find(x => x.id === id);
+            if (!l) return;
+            const cl = classificar(l);
+            const dias = cl.dias;
+            let recommendedScriptId = 'menu_inicial';
+            
+            const totalPedidos = Number(l.totalPedidos || 0);
+            if (totalPedidos === 0 && !l.nicho) {
+                recommendedScriptId = 'menu_inicial';
+            } else if (totalPedidos === 0 && l.nicho) {
+                recommendedScriptId = 'pedido_minimo';
+            } else if (dias !== null && dias > 60) {
+                recommendedScriptId = 'reabertura';
+            }
+            
+            const statusFunil = l.statusAtendimento || 'Novo';
+            if (statusFunil === 'Carrinho Abandonado') {
+                recommendedScriptId = 'carrinho';
+            } else if (statusFunil === 'Aguardando Pagamento') {
+                recommendedScriptId = 'boleto_pendente';
+            } else if (statusFunil === 'Catálogo Enviado') {
+                recommendedScriptId = 'manda_pdf';
+            }
+            
+            const msg = window.gerarMensagemPersonalizada(l, recommendedScriptId);
+            if (msg) {
+                navigator.clipboard.writeText(msg);
+                showToast('Smart Script copiado! Redirecionando...');
+            }
+            
+            let num = String(l.telefone).replace(/\D/g, '');
+            if (num.length <= 11 && !num.startsWith('55')) num = '55' + num;
+            window.open(msg ? `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(msg)}` : `https://api.whatsapp.com/send?phone=${num}`, '_blank');
+        };
 
         // === TEMPLATES ===
         
@@ -1679,7 +1906,7 @@
                 
                 escassez_geografica: `Olá ${nome}, aviso importante de distribuição!\n\nEstamos fechando a lista de novos lojistas parceiros em ${uf} para este trimestre.\n\nSe você trabalha com ${nicho} e quer garantir ${nicheContext} com preços antigos antes do reajuste, precisamos da sua confirmação hoje.\n\nPodemos liberar o seu acesso?\n👉 Responda *SIM*`,
                 
-                aumento_preco: `${nome}, passando para avisar que na próxima segunda-feira nossa tabela de atacado terá um reajuste de 8% devido à reposição de importação.\n\nComo você está no nicho de ${nicho}, se fechar seu pedido de reposição hoje, garantimos o preço antigo (lucro líquido de até R$ 350 extras no lote!).\n\nQuer ver as peças disponíveis no preço de fábrica atual?\n👉 Responda *SIM*`,
+                aumento_preco: `${nome}, passando para avisar que na próxima segunda-feira nossa tabela de atacado terá um reajuste de 12% devido a custos alfandegários e reposição de estoque de fábrica.\n\nComo você está no nicho de ${nicho}, se fechar seu pedido de reposição hoje, garantimos o preço antigo (com margem de 100% a 150% garantida!).\n\nQuer garantir as últimas peças no preço antigo?\n👉 Responda *SIM*`,
                 
                 cota_pessoal: `${nome}, tudo bem?\n\nConsegui liberar com a gerência 1 cota única de Frete Grátis (sem valor mínimo de pedido!) para lojistas de ${uf}.\n\nComo você atua com ${nicho}, é uma excelente oportunidade para testar o giro das peças na sua loja sem custo de envio.\n\nQuer aproveitar essa cota?\n👉 Responda *SIM*`,
 
@@ -1709,19 +1936,19 @@
                 
                 preco_alto: `${nome}, entendo sua preocupação com o valor.\n\nMas analise o retorno: cada relógio original comprado a preço de atacado por R$ 50-60 é revendido por R$ 130-150. Vendendo só 2 peças, você já recupera o pedido mínimo e o restante é lucro líquido. Sem contar que a garantia de 1 ano elimina qualquer gasto seu com troca.\n\nVamos começar com o pedido mínimo de R$ 300?\n👉 Responda *SIM*`,
 
-                carrinho: `Olá ${nome}, vimos que você selecionou alguns lotes de relógios em nosso portal da Relógio Store mas não concluiu seu pedido B2B.\n\nLembrando que para o nicho de ${nicho}, o estoque desses modelos de alta rotatividade está esgotando rapidamente. Posso liberar frete grátis para você concluir hoje?\n\n👉 Responda *SIM* para aplicar o desconto!`,
+                carrinho: `Olá ${nome}, vimos que você selecionou alguns lotes de relógios em nosso portal da Relógio Store mas não concluiu seu pedido B2B.\n\nComo esses modelos têm alta rotatividade no nicho de ${nicho}, o estoque está esgotando rapidamente. Posso liberar frete grátis e garantir o envio hoje se concluirmos agora?\n\n👉 Responda *SIM* para aplicar o desconto!`,
                 
-                boleto_pendente: `Olá ${nome}, tudo bem? Consta em nosso sistema um pedido pendente de faturamento (Boleto/Pix) feito por você.\n\nComo nossa demanda de atacado está muito alta em ${uf}, conseguimos segurar as suas peças no estoque apenas até o fim do expediente.\n\nQuer que eu envie a chave Pix atualizada ou precisa de ajuda?\n👉 Responda *PIX* ou *BOLETO*`,
+                boleto_pendente: `Olá ${nome}, tudo bem? Consta em nosso sistema um pedido pendente de faturamento (Boleto/Pix) feito por você.\n\nPara garantirmos a separação física do seu lote no galpão, a reserva é mantida por apenas 24h. Quer que eu envie o Pix Copia e Cola ou precisa de ajuda?\n\n👉 Responda *PIX* ou *BOLETO*`,
                 
                 reabertura: totalPedidos > 0 
-                    ? `Olá ${nome}, quanto tempo! Vimos que faz mais de 60 dias que você não abastece o estoque de relógios da sua loja em ${uf}.\n\nChegaram novidades imperdíveis no nicho de ${nicho} com preços especiais de atacado para reativação da sua base.\n\nQuer ver as fotos e novidades?\n👉 Responda *SIM* e te mostro em primeira mão!`
+                    ? `Olá ${nome}, quanto tempo! Faz mais de 60 dias que você não abastece a vitrine da sua loja em ${uf}.\n\nAcabamos de descarregar um container com novidades no nicho de ${nicho} com preço de fábrica real. Se fechar seu pedido esta semana, garanto Frete Grátis sem valor mínimo para reativar seu estoque!\n\nQuer ver as fotos e novidades?\n👉 Responda *SIM*`
                     : `Olá ${nome}! Vimos que você demonstrou interesse em revender nossos relógios mas acabou não concluindo seu primeiro pedido.\n\nLiberamos uma condição especial de reativação para lojistas de ${nicho} esta semana: pedido mínimo de R$ 300 + Frete Grátis para ${uf}.\n\nPodemos enviar o link do catálogo?\n👉 Responda *SIM*`,
 
-                menu_inicial: `Olá! Bem-vindo ao canal oficial do Grupo Tuguir e Relógio Store! ⌚\n\nPara que eu possa te direcionar ao atendimento correto, digite o número correspondente:\n\n1️⃣ Quero revender no ATACADO (Preço de fábrica)\n2️⃣ Tenho CNPJ e quero acesso ao Portal VIP\n3️⃣ Consultar o envio do meu pedido\n4️⃣ Garantia ou suporte pós-venda\n5️⃣ Falar com um consultor comercial`,
+                menu_inicial: `Olá! Seja bem-vindo à Relógio Store! Sou a Nicole, e vou te auxiliar no seu processo de compra. ⌚\n\nPara que eu possa te direcionar ao atendimento correto, selecione uma opção:\n\n1️⃣ Quero revender no ATACADO (Preço de fábrica)\n2️⃣ Tenho CNPJ e quero acesso ao Portal VIP\n3️⃣ Consultar o envio do meu pedido\n4️⃣ Garantia ou suporte pós-venda\n5️⃣ Falar com um consultor comercial\n\nLembrando que temos um site exclusivo para CNPJ com 7 marcas premium disponíveis!`,
                 
                 convite_vip: `👑 *CONVITE PARA PORTAL VIP B2B*\n\nParabéns, ${nome}! Seu histórico de relacionamento com a Relógio Store qualificou sua loja para a nossa base de lojistas VIP.\n\nIsso libera preços ainda menores, frete grátis prioritário e novos lançamentos antecipados.\n\nCrie sua conta VIP grátis aqui:\nhttps://relogiostorevip.com.br`,
                 
-                pos_venda: `Olá ${nome}! 😊 Tudo certo com as peças do seu último pedido recebido em ${uf}?\n\nQueremos garantir que tudo chegou em perfeito estado e que a sua revenda seja um sucesso. Se precisar de fotos adicionais ou suporte de garantia, estou aqui!`,
+                pos_venda: `Olá ${nome}! 😊 Tudo certo com as peças do seu último pedido recebido em ${uf}?\n\nJá liberamos o link com todas as fotos oficiais e vídeos de estúdio em alta resolução para você usar no Instagram da sua loja e vender rápido! Baixe aqui: [Link Drive]. Se precisar de suporte, me chame.`,
                 
                 catalogo: `Olá ${nome}, segue o link do nosso catálogo oficial online. Ele é atualizado em tempo real com o estoque integrado da distribuidora:\n\nhttps://relogiostorevip.com.br\n\nQualquer dúvida sobre os modelos de ${nicho}, me chame aqui!`
             };
