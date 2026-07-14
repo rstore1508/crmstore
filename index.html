@@ -132,6 +132,51 @@
         .premium-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .premium-card:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); }
         body.dark .premium-card:hover { box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); }
+        /* Camada visual premium do CRM */
+        body { background: transparent; }
+        #main-layout, main { background: transparent !important; }
+        /* Direção visual: painel operacional com navegação de alta densidade */
+        aside { background: linear-gradient(165deg,#0b1d37 0%,#102d52 54%,#0a1b33 100%) !important; border-right:0 !important; }
+        aside > div:first-child { border-color:rgba(255,255,255,.10) !important; }
+        aside > div:first-child img { filter: brightness(0) invert(1); }
+        aside > div:first-child h1 { color:#fff !important; }
+        aside > div:first-child p { color:#9fc1dc !important; }
+        aside #main-nav button { color:#c7d5e6 !important; }
+        aside #main-nav button:hover { color:#fff !important; background:rgba(255,255,255,.085) !important; }
+        aside #main-nav button.bg-brand-400 { background:rgba(255,255,255,.94) !important; color:#173454 !important; box-shadow:0 10px 24px rgba(0,0,0,.16); }
+        aside #main-nav button.bg-brand-400 i { color:#173454 !important; }
+        aside #main-nav button:not(.bg-brand-400) i { color:#94b4cf !important; }
+        aside > div:last-child { border-color:rgba(255,255,255,.10) !important; }
+        aside > div:last-child > div { background:rgba(255,255,255,.08) !important; border:1px solid rgba(255,255,255,.10); }
+        aside #user-display-name { color:#fff !important; }
+        aside #clock-display { color:#a8bed2 !important; }
+        aside::after { background:rgba(116,172,220,.11); }
+        header { min-height:4.5rem; box-shadow:0 1px 0 rgba(15,23,42,.04); }
+        #page-title { letter-spacing:-.025em; font-size:1.05rem; }
+        #app-content > div { max-width:1440px; margin:0 auto; }
+        #app-content .bg-white { border-color:#e8eef5 !important; }
+        #app-content .rounded-xl { border-radius:.85rem; }
+        #main-layout { background: rgba(248,250,252,.72); }
+        aside { box-shadow: 12px 0 30px rgba(15, 29, 42, .035); position: relative; z-index: 10; }
+        aside::after { content:''; position:absolute; width:150px; height:150px; border-radius:999px; left:-85px; top:70%; background:rgba(72,101,129,.06); pointer-events:none; }
+        #main-nav button { position:relative; overflow:hidden; letter-spacing:.005em; }
+        #main-nav button:not(.bg-brand-400)::before { content:''; position:absolute; left:0; top:22%; bottom:22%; width:3px; background:#486581; border-radius:0 4px 4px 0; opacity:0; transition:opacity .18s ease; }
+        #main-nav button:not(.bg-brand-400):hover::before { opacity:1; }
+        #main-nav button.bg-brand-400 { box-shadow:0 7px 16px rgba(51,78,104,.24); }
+        main { background:transparent !important; }
+        header { background:rgba(255,255,255,.82) !important; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+        #app-content { scroll-behavior:smooth; }
+        #app-content .bg-white { box-shadow:0 1px 2px rgba(15,23,42,.025); }
+        #app-content input, #app-content select, #app-content textarea { transition:border-color .2s ease, box-shadow .2s ease, background-color .2s ease; }
+        #app-content input:focus, #app-content select:focus, #app-content textarea:focus { border-color:#486581 !important; box-shadow:0 0 0 3px rgba(72,101,129,.12) !important; }
+        #app-content button { transition:transform .18s ease, box-shadow .18s ease, background-color .18s ease; }
+        #app-content button:active { transform:scale(.98); }
+        #crm-result-summary { display:inline-flex; align-items:center; gap:.4rem; }
+        #crm-result-summary::before { content:''; width:.5rem; height:.5rem; border-radius:50%; background:#10b981; box-shadow:0 0 0 3px rgba(16,185,129,.12); }
+        #slideover-cliente > div:last-child > div { box-shadow:-18px 0 50px rgba(15,23,42,.16); }
+        #slideover-cliente h4 { letter-spacing:.08em; }
+        #crm-footer-panel { background:rgba(255,255,255,.88); backdrop-filter:blur(14px); }
+        @media (max-width: 768px) { aside { width:4.25rem !important; } aside .p-5 div, aside #main-nav button { font-size:0; } aside #main-nav button { justify-content:center; padding-left:.5rem; padding-right:.5rem; } aside #main-nav button i { font-size:1.25rem; } aside .p-5 { justify-content:center; padding-left:.5rem; padding-right:.5rem; } aside .p-5 img { height:2rem; } aside .p-3 { padding:.5rem; } aside #user-display-name, aside #clock-display, aside .flex.gap-1 { display:none; } header { padding-left:1rem !important; padding-right:1rem !important; } #app-content { padding:1rem !important; } #crm-footer-panel { display:none; } }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans h-screen flex overflow-hidden">
@@ -277,6 +322,11 @@
                         <label class="block text-[10px] font-bold text-brand-400 uppercase tracking-wider">Valor do Fechamento (R$)</label>
                         <input type="number" step="0.01" id="so-valor-venda" placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-xs outline-none focus:ring-2 focus:ring-brand-400 font-semibold text-slate-700">
                     </div>
+                    <div class="space-y-2 p-3 rounded-xl border border-blue-100 bg-blue-50/50">
+                        <div class="flex items-center justify-between"><h4 class="text-[10px] font-bold text-blue-700 uppercase tracking-wider"><i class="ph ph-target"></i> Próxima ação</h4><span class="text-[9px] text-blue-500 font-semibold">Evite perder o timing</span></div>
+                        <div class="grid grid-cols-2 gap-2"><select id="so-proxima-acao" class="bg-white border border-blue-100 rounded-lg px-2 py-2 text-[10px] font-semibold outline-none"><option value="">Selecionar ação</option><option value="WhatsApp">Enviar WhatsApp</option><option value="Ligação">Fazer ligação</option><option value="Follow-up">Fazer follow-up</option><option value="Enviar catálogo">Enviar catálogo</option><option value="Proposta">Enviar proposta</option></select><input type="date" id="so-proxima-data" class="bg-white border border-blue-100 rounded-lg px-2 py-2 text-[10px] font-semibold outline-none"></div><input id="so-responsavel" placeholder="Responsável pelo atendimento" class="w-full bg-white border border-blue-100 rounded-lg px-2 py-2 text-[10px] font-semibold outline-none">
+                    </div>
+                    <div class="space-y-2 p-3 rounded-xl border border-slate-200"><div class="flex items-center justify-between"><h4 class="text-[10px] font-bold text-slate-600 uppercase tracking-wider"><i class="ph ph-shield-check"></i> Permissões de campanha</h4><label class="flex items-center gap-1.5 text-[10px] font-semibold text-slate-600 cursor-pointer"><input id="so-optout" type="checkbox" class="accent-red-500"> Não receber marketing</label></div><select id="so-consentimento" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-[10px] font-semibold outline-none"><option value="Pendente">Consentimento: pendente</option><option value="Consentido">Consentimento: autorizado</option><option value="Legítimo interesse">Base: legítimo interesse</option></select></div>
                     <div class="space-y-2 pt-3 border-t border-slate-100">
                         <h4 class="text-[10px] font-bold text-brand-400 uppercase tracking-wider flex justify-between items-center">Smart Scripts (Playbook) <i class="ph ph-sparkle text-amber-500 text-sm"></i></h4>
                         <div class="space-y-2">
@@ -371,7 +421,7 @@
         const db = getFirestore(app);
 
         // === STATE ===
-        let currentUser = null, allLeads = [], allProducts = [], activeView = 'dashboard';
+        let currentUser = null, allLeads = [], allProducts = [], allCampaigns = [], activeView = 'dashboard';
         let importStatus = { lastImportNormal: null, lastImportVip: null };
         const hoje = new Date().toISOString().split('T')[0];
         let dailyScoreboard = { abordagens:0, upgrades:0, catalogos:0, grupo_vip:0 };
@@ -469,6 +519,7 @@
             {id:'kanban', icon:'ph-kanban', label:'Funil Kanban'},
             {id:'clientes', icon:'ph-users-three', label:'CRM & Clientes'},
             {id:'metas', icon:'ph-chart-line-up', label:'Metas & Funil'},
+            {id:'campanhas', icon:'ph-megaphone-simple', label:'Campanhas & Resultados'},
             {id:'importar', icon:'ph-upload-simple', label:'Importar Base'}
         ];
         window.navigate = (v) => { activeView=v; renderNav(); renderView(); };
@@ -499,6 +550,7 @@
                 kanban:{title:'Funil de Vendas',sub:'Mova os clientes entre as etapas'},
                 clientes:{title:'CRM & Clientes',sub:'Base segmentada por última compra'},
                 metas:{title:'Metas & Conversão',sub:'Painel estratégico — Faturamento, funil e inteligência geográfica'},
+                campanhas:{title:'Campanhas & Resultados',sub:'Crie listas segmentadas e acompanhe a receita gerada'},
                 importar:{title:'Importar Base Tray',sub:'Upload de .csv / .xlsx com deduplicação'}
             };
             document.getElementById('page-title').innerText=titles[activeView].title;
@@ -506,10 +558,45 @@
             if(activeView==='dashboard') renderDashboard(c);
             else if(activeView==='kanban') renderKanban(c);
             else if(activeView==='clientes') renderClientes(c);
+            else if(activeView==='campanhas') renderCampanhas(c);
             else if(activeView==='metas') renderMetas(c);
             else if(activeView==='importar') renderImportar(c);
         }
 
+        function fmtMoeda(valor) { return Number(valor||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+        function calcularMetricasComerciais() {
+            const convertidos=allLeads.filter(l=>l.statusAtendimento==='Convertido');
+            const emNegociacao=allLeads.filter(l=>['Em Negociação','Aguardando Pagamento','Carrinho Abandonado'].includes(l.statusAtendimento)).length;
+            const receita=convertidos.reduce((s,l)=>s+(Number(l.valorVenda)||0),0);
+            const hojeLocal=new Date().toISOString().split('T')[0];
+            const vencidos=allLeads.filter(l=>l.proximaAcaoData&&l.proximaAcaoData<=hojeLocal&&l.statusAtendimento!=='Convertido').length;
+            const porResponsavel={};
+            allLeads.forEach(l=>{const nome=l.responsavel||'Sem responsável';if(!porResponsavel[nome])porResponsavel[nome]={total:0,convertidos:0,receita:0};porResponsavel[nome].total++;if(l.statusAtendimento==='Convertido'){porResponsavel[nome].convertidos++;porResponsavel[nome].receita+=Number(l.valorVenda)||0;}});
+            const porSegmento={}; allLeads.forEach(l=>{const seg=classificar(l).seg;if(!porSegmento[seg])porSegmento[seg]={total:0,convertidos:0};porSegmento[seg].total++;if(l.statusAtendimento==='Convertido')porSegmento[seg].convertidos++;});
+            return {convertidos,emNegociacao,receita,vencidos,porResponsavel,porSegmento,taxaConversao:allLeads.length?((convertidos.length/allLeads.length)*100).toFixed(1):'0.0'};
+        }
+        function cardInsight(icon,titulo,valor,sub,cor) { const cores={emerald:'text-emerald-600 bg-emerald-50 border-emerald-100',blue:'text-blue-600 bg-blue-50 border-blue-100',red:'text-red-600 bg-red-50 border-red-100'}; return `<div class="bg-white border border-slate-200 rounded-xl p-4"><div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wide text-slate-400"><span class="w-7 h-7 rounded-lg border flex items-center justify-center ${cores[cor]}"><i class="ph ${icon} text-sm"></i></span>${titulo}</div><p class="text-xl font-extrabold text-slate-800 mt-2">${valor}</p><p class="text-[10px] text-slate-400 mt-1">${sub}</p></div>`; }
+        function painelSegmentos(porSegmento) { return `<div class="bg-white border border-slate-200 rounded-xl p-4"><h3 class="font-bold text-sm text-slate-800">Conversão por segmento</h3><div class="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-3">${Object.entries(porSegmento).map(([seg,m])=>`<div class="bg-slate-50 rounded-lg p-2"><p class="text-[9px] font-bold text-slate-500 truncate">${seg}</p><p class="text-sm font-extrabold text-slate-800">${m.total?((m.convertidos/m.total)*100).toFixed(0):0}%</p><p class="text-[8px] text-slate-400">${m.convertidos}/${m.total} vendas</p></div>`).join('')}</div></div>`; }
+        function painelResponsaveis(porResponsavel) { const itens=Object.entries(porResponsavel).sort((a,b)=>b[1].receita-a[1].receita).slice(0,5); if(!itens.length)return ''; return `<div class="bg-white border border-slate-200 rounded-xl p-4"><div class="flex items-center justify-between mb-3"><div><h3 class="font-bold text-sm text-slate-800">Performance por responsável</h3><p class="text-[10px] text-slate-400">Conversão e receita registrada por vendedor.</p></div><i class="ph ph-users-three text-brand-400 text-xl"></i></div><div class="space-y-2">${itens.map(([nome,m])=>`<div class="grid grid-cols-[1fr_auto_auto] gap-4 items-center text-[10px]"><span class="font-bold text-slate-700 truncate">${nome}</span><span class="text-slate-500">${m.convertidos}/${m.total} · ${m.total?((m.convertidos/m.total)*100).toFixed(0):0}%</span><span class="font-bold text-emerald-600">${fmtMoeda(m.receita)}</span></div>`).join('')}</div></div>`; }
+        window.abrirFilaRetornos=()=>{activeView='clientes';renderNav();renderView();setTimeout(()=>{const s=document.getElementById('search-q');if(s){s.value='';}const grid=document.getElementById('crm-grid');const todos=allLeads.filter(l=>l.proximaAcaoData&&l.proximaAcaoData<=hoje&&l.statusAtendimento!=='Convertido');if(grid){grid.innerHTML=todos.length?todos.map(l=>`<button onclick="abrirSlideover('${l.id}')" class="text-left bg-red-50 border border-red-200 p-3 rounded-xl"><b class="text-xs text-slate-800">${l.nome}</b><p class="text-[10px] text-red-600 mt-1">${l.proximaAcao||'Retorno'} · ${fmtData(l.proximaAcaoData)}</p></button>`).join(''):'<p class="text-xs text-slate-400">Nenhum retorno vencido.</p>';}} ,0);};
+
+        function renderCampanhas(c) {
+            const aptos=allLeads.filter(l=>!l.optOutMarketing&&(l.consentimentoMarketing==='Consentido'||l.consentimentoMarketing==='Legítimo interesse'));
+            const cards=[['Pós-Venda','ph-thumbs-up','green','≤ 7 dias: pedir feedback e fidelizar'],['Risco','ph-warning-octagon','amber','31–60 dias: reativar antes da perda'],['Inativo','ph-arrow-counter-clockwise','red','> 60 dias: oferta de reconquista'],['Lead Frio','ph-snowflake','slate','Nunca comprou: qualificar e apresentar a marca']];
+            c.innerHTML=`<div class="space-y-5 fade-in pb-8"><div class="bg-gradient-to-r from-brand-700 to-brand-500 rounded-2xl p-6 text-white"><div class="flex flex-col sm:flex-row justify-between gap-4"><div><p class="text-[10px] font-bold uppercase tracking-widest text-brand-100">Central de campanhas</p><h2 class="text-xl font-extrabold mt-1">Campanhas que geram receita, não disparos soltos.</h2><p class="text-xs text-brand-100 mt-2">Trabalhe somente a base apta e acompanhe o resultado de cada ação.</p></div><div class="bg-white/10 rounded-xl p-3 min-w-36"><p class="text-[10px] text-brand-100 font-bold uppercase">Base apta</p><p class="text-3xl font-extrabold">${aptos.length}</p><p class="text-[10px] text-brand-100">contatos autorizados</p></div></div></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">${cards.map(x=>`<button onclick="abrirSegmentoParaCampanha('${x[0]}')" class="text-left bg-white border border-slate-200 hover:border-brand-400 p-4 rounded-xl transition-all hover:shadow-sm"><i class="ph ${x[1]} text-${x[2]}-500 text-xl"></i><h3 class="text-sm font-bold text-slate-800 mt-2">${x[0]}</h3><p class="text-[10px] text-slate-400 mt-1">${x[3]}</p><p class="text-[10px] text-brand-500 font-bold mt-3">Abrir lista apta →</p></button>`).join('')}</div><div class="bg-white rounded-xl border border-slate-200 p-5"><div class="flex items-center justify-between mb-4"><div><h3 class="font-bold text-sm text-slate-800">Resultado das campanhas</h3><p class="text-[10px] text-slate-400">Registre o resultado para saber o que realmente vende.</p></div><button onclick="abrirNovaCampanha()" class="bg-brand-500 text-white px-3 py-2 rounded-lg text-[10px] font-bold">+ Registrar campanha</button></div><div id="campanha-form" class="hidden grid grid-cols-1 sm:grid-cols-5 gap-2 mb-4 p-3 bg-slate-50 rounded-xl"><input id="camp-nome" placeholder="Nome da campanha" class="sm:col-span-2 border rounded-lg px-2 py-2 text-[10px]"><input id="camp-contatos" type="number" placeholder="Contatos" class="border rounded-lg px-2 py-2 text-[10px]"><input id="camp-respostas" type="number" placeholder="Respostas" class="border rounded-lg px-2 py-2 text-[10px]"><input id="camp-receita" type="number" placeholder="Receita R$" class="border rounded-lg px-2 py-2 text-[10px]"><button onclick="salvarCampanha()" class="sm:col-span-5 bg-slate-800 text-white rounded-lg py-2 text-[10px] font-bold">Salvar resultado</button></div>${allCampaigns.length?`<div class="overflow-x-auto"><table class="w-full text-left text-[11px]"><thead class="text-slate-400 border-b"><tr><th class="pb-2">Campanha</th><th class="pb-2">Contatos</th><th class="pb-2">Respostas</th><th class="pb-2">Pedidos</th><th class="pb-2">Receita</th></tr></thead><tbody>${allCampaigns.slice(0,12).map(x=>`<tr class="border-b border-slate-100"><td class="py-3 font-bold text-slate-700">${x.nome||'Campanha sem nome'}</td><td>${x.contatos||0}</td><td>${x.respostas||0}</td><td>${x.pedidos||0}</td><td class="font-bold text-emerald-600">${fmtMoeda(x.receita)}</td></tr>`).join('')}</tbody></table></div>`:'<p class="text-xs text-slate-400 text-center py-5">Ainda não há resultados registrados.</p>'}</div></div>`;
+        }
+        window.abrirSegmentoParaCampanha=(segmento)=>{activeView='clientes';renderNav();renderView();setTimeout(()=>{document.getElementById('filter-seg').value=segmento;document.getElementById('filter-consent').value='apto';filtrarLista();showToast(`Lista ${segmento} apta para campanha carregada.`);},0);};
+        window.abrirNovaCampanha=()=>document.getElementById('campanha-form')?.classList.remove('hidden');
+        window.salvarCampanha=async()=>{const nome=document.getElementById('camp-nome')?.value.trim();if(!nome){showToast('Informe o nome da campanha.','warning');return;}try{await setDoc(doc(collection(db,'campaigns')),{nome,contatos:Number(document.getElementById('camp-contatos').value||0),respostas:Number(document.getElementById('camp-respostas').value||0),receita:Number(document.getElementById('camp-receita').value||0),pedidos:0,criadoEm:new Date().toISOString(),criadoPor:currentUser?.email||''});showToast('Resultado da campanha registrado.');}catch(e){showToast('Não foi possível registrar a campanha.','error');}};
+        function painelPrioridades() {
+            const filas=[
+                {titulo:'Recuperar clientes em risco', filtro:'Risco', prioridade:'Alta', badge:'bg-red-50 text-red-600 border-red-100', clientes:allLeads.filter(l=>classificar(l).seg==='Risco').length, responsavel:'Comercial'},
+                {titulo:'Reativar inativos', filtro:'Inativo', prioridade:'Alta', badge:'bg-red-50 text-red-600 border-red-100', clientes:allLeads.filter(l=>classificar(l).seg==='Inativo').length, responsavel:'Marketing'},
+                {titulo:'Follow-up de propostas', filtro:'FollowUp', prioridade:'Média', badge:'bg-amber-50 text-amber-600 border-amber-100', clientes:allLeads.filter(l=>['Catálogo Enviado','Em Negociação'].includes(l.statusAtendimento)&&diasDesde(l.dataUltimaInteracao||l.dataEntrada)>3).length, responsavel:'Comercial'},
+                {titulo:'Agradecer pós-venda', filtro:'Pós-Venda', prioridade:'Baixa', badge:'bg-emerald-50 text-emerald-600 border-emerald-100', clientes:allLeads.filter(l=>classificar(l).seg==='Pós-Venda').length, responsavel:'Relacionamento'}
+            ];
+            return `<div class="bg-white border border-slate-200 rounded-xl overflow-hidden"><div class="px-5 py-4 flex items-center justify-between border-b border-slate-100"><div><h3 class="text-sm font-bold text-slate-800">Prioridades de hoje</h3><p class="text-[10px] text-slate-400 mt-0.5">Fila inteligente ordenada por impacto comercial.</p></div><button onclick="navigate('clientes')" class="text-[10px] font-bold text-brand-500 hover:text-brand-700">Abrir CRM <i class="ph ph-arrow-right"></i></button></div><div class="overflow-x-auto"><table class="w-full min-w-[580px] text-left"><thead class="bg-slate-50/80 text-[9px] uppercase tracking-wider text-slate-400"><tr><th class="px-5 py-2.5 font-bold">Prioridade</th><th class="px-3 py-2.5 font-bold">Ação recomendada</th><th class="px-3 py-2.5 font-bold">Clientes</th><th class="px-3 py-2.5 font-bold">Responsável</th><th class="px-5 py-2.5"></th></tr></thead><tbody>${filas.map(f=>`<tr class="border-t border-slate-100 hover:bg-slate-50/70 transition-colors"><td class="px-5 py-3"><span class="text-[9px] font-bold px-2 py-1 rounded-full ${f.badge} border">${f.prioridade}</span></td><td class="px-3 py-3 text-[11px] font-semibold text-slate-700">${f.titulo}</td><td class="px-3 py-3 text-[11px] font-bold text-slate-800">${f.clientes}</td><td class="px-3 py-3 text-[10px] text-slate-500">${f.responsavel}</td><td class="px-5 py-3 text-right"><button onclick="filtrarCRM('${f.filtro}')" class="border border-brand-200 text-brand-600 hover:bg-brand-50 px-2.5 py-1.5 rounded-lg text-[9px] font-bold">Iniciar</button></td></tr>`).join('')}</tbody></table></div></div>`;
+        }
         // === DASHBOARD ===
         function renderDashboard(c) {
             const seg = contarSegmentos();
@@ -525,6 +612,7 @@
             const upgradeVip = allLeads.filter(l=>l.tipoCliente==='Normal'&&(l.totalPedidos||0)>=2);
             const carrinhos = allLeads.filter(l=>l.statusAtendimento==='Carrinho Abandonado');
             const boletos = allLeads.filter(l=>l.statusAtendimento==='Aguardando Pagamento');
+            const metricas = calcularMetricasComerciais();
 
             c.innerHTML = `<div class="space-y-5 stagger-in pb-8">
                 <!-- Banner Import -->
@@ -546,7 +634,16 @@
                     ${cardSeg('ph-snowflake','Lead Frio',seg['Lead Frio'],'slate','Nunca comprou','Lead Frio')}
                 </div>
 
-                <!-- Bloco de Diretriz de Rotina -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    ${cardInsight('ph-chart-line-up','Conversão do funil',`${metricas.taxaConversao}%`,`${metricas.convertidos} fechados de ${allLeads.length} contatos`,'emerald')}
+                    ${cardInsight('ph-currency-circle-dollar','Receita registrada',fmtMoeda(metricas.receita),`${metricas.emNegociacao} oportunidade(s) em negociação`,'blue')}
+                    ${cardInsight('ph-alarm','Retornos vencidos',metricas.vencidos,metricas.vencidos?'Prioridade máxima para hoje':'Nenhum retorno atrasado','red')}
+                </div>
+                ${painelSegmentos(metricas.porSegmento)}
+                ${painelResponsaveis(metricas.porResponsavel)}
+                ${metricas.vencidos ? `<div class="bg-red-50 border border-red-200 p-3 rounded-xl flex items-center justify-between gap-3"><div><p class="text-xs font-bold text-red-800">${metricas.vencidos} retorno(s) precisam de ação hoje</p><p class="text-[10px] text-red-600">Abra a fila e execute o próximo contato antes de iniciar novos atendimentos.</p></div><button onclick="abrirFilaRetornos()" class="shrink-0 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-3 py-2 rounded-lg">Ver fila</button></div>`:''}
+
+                \n\n                <!-- Bloco de Diretriz de Rotina -->
                 <div class="p-4 rounded-xl border border-brand-200/50 bg-brand-50/20 text-brand-800 flex items-center gap-3">
                     <div class="w-9 h-9 rounded-full bg-brand-100/50 flex items-center justify-center text-brand-600 shrink-0"><i class="ph ph-calendar-check text-xl"></i></div>
                     <div class="flex-1">
@@ -1021,6 +1118,13 @@
                         <option value="">Normal + VIP</option><option value="Normal">Normal</option><option value="VIP">VIP</option></select>
                     <select id="filter-status" onchange="filtrarLista()" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[11px] font-semibold outline-none cursor-pointer">
                         <option value="">Todos os Status</option><option value="Novo">Novo</option><option value="Contatado">Contatado</option><option value="Catálogo Enviado">Catálogo Enviado</option><option value="Em Negociação">Em Negociação</option><option value="Convertido">Convertido</option></select>
+                    <select id="filter-consent" onchange="filtrarLista()" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[11px] font-semibold outline-none cursor-pointer"><option value="">Todos os contatos</option><option value="apto">Aptos para campanha</option><option value="bloqueado">Opt-out / não contatar</option></select>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
+                    <p id="crm-result-summary" class="text-[11px] font-semibold text-slate-500">Carregando contatos...</p>
+                    <button onclick="exportarListaCRM()" class="inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-600 text-white px-4 py-2.5 rounded-lg text-[11px] font-bold shadow-sm transition-all hover:shadow-md">
+                        <i class="ph ph-download-simple text-base"></i> Baixar lista filtrada (.CSV)
+                    </button>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
                     <div class="lg:col-span-3"><div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="crm-grid"></div></div>
@@ -1031,20 +1135,22 @@
             filtrarLista();
         }
 
-        window.filtrarLista = () => {
-            const grid=document.getElementById('crm-grid'); if(!grid) return;
+        function obterListaFiltrada() {
             const q=(document.getElementById('search-q')?.value||'').toLowerCase();
             const seg=document.getElementById('filter-seg')?.value||'';
             const uf=document.getElementById('filter-uf')?.value||'';
             const tipo=document.getElementById('filter-tipo')?.value||'';
             const status=document.getElementById('filter-status')?.value||'';
             const nicho=document.getElementById('filter-nicho')?.value||'';
+            const consentimento=document.getElementById('filter-consent')?.value||'';
             let list=allLeads;
             if(q) list=list.filter(l=>(l.nome||'').toLowerCase().includes(q)||(l.telefone||'').includes(q)||(l.cpf_cnpj||'').includes(q)||(l.email||'').toLowerCase().includes(q));
             if(uf) list=list.filter(l=>l.uf&&l.uf.toUpperCase()===uf.toUpperCase());
             if(tipo) list=list.filter(l=>l.tipoCliente===tipo);
             if(status) list=list.filter(l=>l.statusAtendimento===status);
             if(nicho) list=list.filter(l=>l.nicho===nicho);
+            if(consentimento==='apto') list=list.filter(l=>!l.optOutMarketing&&(l.consentimentoMarketing==='Consentido'||l.consentimentoMarketing==='Legítimo interesse'));
+            if(consentimento==='bloqueado') list=list.filter(l=>l.optOutMarketing);
             if(seg) {
                 if(seg==='FollowUp') list=list.filter(l=>(l.statusAtendimento==='Catálogo Enviado'||l.statusAtendimento==='Em Negociação')&&diasDesde(l.dataUltimaInteracao||l.dataEntrada)>3);
                 else if(seg==='CarrinhoAbandonado') list=list.filter(l=>l.statusAtendimento==='Carrinho Abandonado');
@@ -1053,12 +1159,45 @@
                 else list=list.filter(l=>classificar(l).seg===seg);
             }
             list.sort((a,b)=>{const da=a.ultimaCompra?new Date(a.ultimaCompra):new Date(0),db_=b.ultimaCompra?new Date(b.ultimaCompra):new Date(0);return db_-da;});
+            return list;
+        }
+
+        function limparCampoCSV(valor) {
+            const texto = String(valor ?? '').replace(/[\r\n]+/g, ' ').trim();
+            return /^[=+\-@]/.test(texto) ? `'${texto}` : texto;
+        }
+
+        window.exportarListaCRM = () => {
+            const list = obterListaFiltrada();
+            if (!list.length) { showToast('Não há contatos nos filtros selecionados.', 'warning'); return; }
+            const linhas = list.map(l => ({
+                nome: limparCampoCSV(l.nome), email: limparCampoCSV(l.email), telefone: limparCampoCSV(l.telefone),
+                segmento: classificar(l).seg, status_funil: limparCampoCSV(l.statusAtendimento || 'Novo'),
+                tipo_cliente: limparCampoCSV(l.tipoCliente || 'Normal'), uf: limparCampoCSV(l.uf ? l.uf.toUpperCase() : ''),
+                nicho: limparCampoCSV(l.nicho), ultima_compra: l.ultimaCompra ? fmtData(l.ultimaCompra) : '',
+                total_pedidos: Number(l.totalPedidos || 0), icp_score: window.calcularICPScore(l)
+            }));
+            const csv = Papa.unparse(linhas, { delimiter: ';' });
+            const segmento = (document.getElementById('filter-seg')?.value || 'todos').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase();
+            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob); link.download = `crm-relogio-store-${segmento}-${hoje}.csv`;
+            document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(link.href);
+            showToast(`${list.length} contatos exportados em CSV.`);
+        };
+
+        window.filtrarLista = () => {
+            const grid=document.getElementById('crm-grid'); if(!grid) return;
+            const list = obterListaFiltrada();
+            const resumo = document.getElementById('crm-result-summary');
+            if (resumo) resumo.innerHTML = `<span class="text-slate-800">${list.length}</span> contato${list.length===1?'':'s'} na lista atual <span class="text-slate-400 font-normal">— exporte apenas quem você vai trabalhar agora.</span>`;
             if(!list.length){grid.innerHTML='<div class="col-span-full py-12 text-center"><i class="ph ph-users-three text-3xl text-slate-300 mb-2"></i><p class="font-semibold text-slate-400 text-sm">Nenhum cliente encontrado.</p></div>';renderEstados('crm-estados');return;}
             grid.innerHTML=list.slice(0,100).map(l=>{
                 const icp = window.calcularICPScore(l);
                 const isVip = l.tipoCliente === 'VIP';
                 const cl = classificar(l);
                 const st = l.statusAtendimento || 'Novo';
+                const proximaAcaoTxt = l.proximaAcao ? `${l.proximaAcao}${l.proximaAcaoData ? ' · ' + fmtData(l.proximaAcaoData) : ''}` : 'Sem próxima ação';
                 const diasTxt = cl.dias === null ? 'Sem compras' : cl.dias === Infinity ? 'Inativo' : `${cl.dias} dias atrás`;
                 
                 let icpBadge = '';
@@ -1097,8 +1236,8 @@
                         <p class="flex items-center gap-1"><i class="ph ph-shopping-cart text-slate-400 text-xs"></i> <span>Última compra: <span class="text-slate-700 font-bold">${fmtData(l.ultimaCompra)}</span></span></p>
                         <p class="flex items-center gap-1"><i class="ph ph-clock text-slate-400 text-xs"></i> <span class="font-bold text-slate-600">${diasTxt}</span></p>
                     </div>
-                    <div class="flex justify-between items-center pt-2 border-t border-slate-100">
-                        <span class="text-[9px] font-bold px-2 py-0.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-500">${st}</span>
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-100 gap-2">
+                        <div class="min-w-0"><span class="text-[9px] font-bold px-2 py-0.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-500">${st}</span><p class="text-[9px] ${l.proximaAcao ? 'text-blue-600' : 'text-red-400'} font-semibold truncate mt-1"><i class="ph ph-target"></i> ${proximaAcaoTxt}</p></div>
                         ${actionBtn}
                     </div>
                 </div>`;
@@ -1122,6 +1261,11 @@
             document.getElementById('so-nota').value=l.notaRapida||'';
             document.getElementById('so-status').value=l.statusAtendimento||'Novo';
             document.getElementById('so-valor-venda').value=l.valorVenda||'';
+            document.getElementById('so-proxima-acao').value=l.proximaAcao||'';
+            document.getElementById('so-proxima-data').value=l.proximaAcaoData||'';
+            document.getElementById('so-responsavel').value=l.responsavel||currentUser?.email?.split('@')[0]||'';
+            document.getElementById('so-optout').checked=!!l.optOutMarketing;
+            document.getElementById('so-consentimento').value=l.consentimentoMarketing||'Pendente';
             document.getElementById('so-msg-preview').value='';
             currentSOMetric='abordagens';
 
@@ -1274,12 +1418,24 @@
             const status = document.getElementById('so-status').value;
             const nicho = document.getElementById('so-nicho').value;
             const valorVenda = Number(document.getElementById('so-valor-venda').value || 0);
+            const proximaAcao = document.getElementById('so-proxima-acao').value;
+            const proximaAcaoData = document.getElementById('so-proxima-data').value;
+            const responsavel = document.getElementById('so-responsavel').value.trim();
+            const optOutMarketing = document.getElementById('so-optout').checked;
+            const consentimentoMarketing = document.getElementById('so-consentimento').value;
+            if (!proximaAcao && status !== 'Convertido') { showToast('Defina a próxima ação antes de salvar.', 'warning'); return; }
+            if (proximaAcao && !proximaAcaoData && status !== 'Convertido') { showToast('Defina a data da próxima ação.', 'warning'); return; }
             try{
                 await updateDoc(doc(db,'leads',clienteAtivoId),{
                     notaRapida: nota,
                     statusAtendimento: status,
                     nicho: nicho,
                     valorVenda: valorVenda,
+                    proximaAcao: proximaAcao,
+                    proximaAcaoData: proximaAcaoData,
+                    responsavel: responsavel,
+                    optOutMarketing: optOutMarketing,
+                    consentimentoMarketing: consentimentoMarketing,
                     dataUltimaInteracao: new Date().toISOString()
                 });
                 showToast('Ficha do cliente atualizada!');
@@ -1671,6 +1827,7 @@
                 window.atualizarRodapeOperacional();
                 if(activeView!=='catalogo'&&activeView!=='importar')renderView();
             });
+            onSnapshot(collection(db,'campaigns'),(s)=>{allCampaigns=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>new Date(b.criadoEm||0)-new Date(a.criadoEm||0));if(activeView==='campanhas')renderView();});
             onSnapshot(collection(db,'products'),(s)=>{allProducts=s.docs.map(d=>({id:d.id,...d.data()}));const dest=allProducts.find(p=>p.destaque);destaqueProdutoId=dest?dest.id:'';if(activeView==='catalogo'||activeView==='dashboard')renderView();});
         }
 
